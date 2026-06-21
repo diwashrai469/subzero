@@ -9,7 +9,9 @@ class AppRouters extends $AppRouters {
   @override
   List<AutoRoute> get routes => [
     AutoRoute(page: AddSubscriptionView.page),
-    AutoRoute(page: DashboardView.page, initial: true),
+    AutoRoute(page: DashboardView.page),
     AutoRoute(page: SubscriptionInfoView.page),
+    // AutoRoute(page: LoginView.page),
+    AutoRoute(page: AuthGateView.page, initial: true),
   ];
 }

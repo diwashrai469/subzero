@@ -1,7 +1,7 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppImage {
-  static const appIcon = "asset/TN.jpg";
+  static const appIcon = "assets/category/subzero_logo.png";
 
   static const String carLoan = 'assets/category/car-loan.png';
   static const String cloudServer = 'assets/category/cloud-server.png';

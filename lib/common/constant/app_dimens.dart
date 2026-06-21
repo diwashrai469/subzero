@@ -9,18 +9,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AppDimens {
   //screenutils
   static const appHeight =
-      712.0; //"Add your custom height of screen with mediaQuery";
+      896.0; //"Add your custom height of screen with mediaQuery";
   static const appWidth =
-      360.0; //"Add your custom width of screen with mediaQuery";
+      414.0; //"Add your custom width of screen with mediaQuery";
 
-//page padding
+  //page padding
   static final mainPagePadding = const EdgeInsets.only(
     right: 16,
     left: 16,
     top: 7,
   ).dg;
 
-//circle avatar radius
+  //circle avatar radius
   static final sssCircleAvatarRadius = 12.0.r;
   static final ssCircleAvatarRadius = 15.0.r;
   static final sCircleAvatarRadius = 17.0.r;
@@ -41,10 +41,14 @@ class AppDimens {
   static const double cardPaddingSize = 20;
   static const cardPadding = EdgeInsets.all(cardPaddingSize);
   static const inputBorderRadius = BorderRadius.all(Radius.circular(0));
-  static final inputPadding =
-      EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h);
-  static final chipPadding =
-      EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h);
+  static final inputPadding = EdgeInsets.symmetric(
+    horizontal: 16.w,
+    vertical: 8.h,
+  );
+  static final chipPadding = EdgeInsets.symmetric(
+    horizontal: 16.w,
+    vertical: 4.h,
+  );
   static final buttonFontSizeXSmall = 14.0.h;
   static final buttonFontSizeSmall = 15.0.h;
   static final buttonFontSizeMedium = 16.0.h;
@@ -53,17 +57,25 @@ class AppDimens {
   static final iconButtonSizeSmall = 24.0.h;
   static final iconButtonSizeLarge = 32.0.h;
 
-//boarder radius
+  //boarder radius
   static final sboarderRadisCircular = 8.0.r;
 
-  static final buttonPaddingXSmall =
-      EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h);
-  static final buttonPaddingSmall =
-      EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h);
-  static final buttonPaddingMedium =
-      EdgeInsets.symmetric(horizontal: 22.w, vertical: 16.h);
-  static final buttonPaddingLarge =
-      EdgeInsets.symmetric(horizontal: 32.w, vertical: 24.h);
+  static final buttonPaddingXSmall = EdgeInsets.symmetric(
+    horizontal: 16.w,
+    vertical: 8.h,
+  );
+  static final buttonPaddingSmall = EdgeInsets.symmetric(
+    horizontal: 20.w,
+    vertical: 12.h,
+  );
+  static final buttonPaddingMedium = EdgeInsets.symmetric(
+    horizontal: 22.w,
+    vertical: 16.h,
+  );
+  static final buttonPaddingLarge = EdgeInsets.symmetric(
+    horizontal: 32.w,
+    vertical: 24.h,
+  );
 
   static final double titleFontSize = 16.sp;
 
@@ -72,7 +84,7 @@ class AppDimens {
   static const FontWeight mfontweight = FontWeight.w500;
   static const FontWeight lfontweight = FontWeight.w700;
 
-//text fontsize
+  //text fontsize
   static final double headlineFontSizeXXXSmall = 10.sp;
   static final double headlineFontSizeXXSmall = 12.sp;
   static final double headlineFontSizeXSmall = 14.sp;
