@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
+
 import 'package:subzero/core/services/firebase/firebase_module.dart';
 import 'package:subzero/core/services/notification/analytics_service.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
@@ -11,106 +12,109 @@ import 'dashboard_state.dart';
 
 @injectable
 class DashboardCubit extends Cubit<DashboardState> {
-  final SubscriptionFirebaseService _firebase;
-  StreamSubscription? _sub;
-
   DashboardCubit(this._firebase) : super(const DashboardState()) {
     load();
   }
 
+  final SubscriptionFirebaseService _firebase;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscription;
+
   Future<void> load() async {
-    final uid = await _firebase.userId;
+    await _subscription?.cancel();
 
-    await _sub?.cancel();
+    emit(state.copyWith(loading: true));
 
-    _sub = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('subscriptions')
-        .snapshots()
-        .listen((snapshot) {
-          final subs = snapshot.docs.map((doc) {
-            final data = doc.data();
-
-            return SubscriptionModel(
-              id: doc.id,
-              name: data['name'] ?? '',
-              amount: (data['amount'] ?? 0).toDouble(),
-              currency: data['currency'] ?? '\$',
-              firstBillDate: _readTimestamp(data['firstBillDate']),
-              nextBillDate: _readTimestamp(data['nextBillDate']),
-              billingCycle: data['billingCycle'] ?? '',
-              category: data['category'] ?? '',
-            );
-          }).toList();
-
-          _process(subs);
-        });
+    _subscription = _firebase.subscriptionStream().listen(
+      (snapshot) {
+        final subscriptions = snapshot.docs.map(_mapSubscription).toList();
+        _process(subscriptions);
+      },
+      onError: (error) {
+        emit(state.copyWith(loading: false));
+      },
+    );
   }
 
-  static DateTime _readTimestamp(dynamic value) {
-    if (value is Timestamp) {
-      return value.toDate();
-    }
+  SubscriptionModel _mapSubscription(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data();
 
-    return DateTime.now();
+    return SubscriptionModel(
+      id: doc.id,
+      name: data['name'] ?? '',
+      amount: _readDouble(data['amount']),
+      currency: data['currency'] ?? '\$',
+      firstBillDate: _readTimestamp(data['firstBillDate']),
+      nextBillDate: _readTimestamp(data['nextBillDate']),
+      billingCycle: data['billingCycle'] ?? '',
+      category: data['category'] ?? '',
+    );
   }
 
-  void _process(List<SubscriptionModel> subs) {
+  void _process(List<SubscriptionModel> subscriptions) {
     final today = _dateOnly(DateTime.now());
 
-    final sortedSubs = subs.toList()
+    final sortedSubscriptions = subscriptions.toList()
       ..sort((a, b) {
-        final aNext = _getUpcomingDate(a, today);
-        final bNext = _getUpcomingDate(b, today);
+        final aNextDate = _getUpcomingDate(a, today);
+        final bNextDate = _getUpcomingDate(b, today);
 
-        final dateCompare = aNext.compareTo(bNext);
+        final dateCompare = aNextDate.compareTo(bNextDate);
 
         if (dateCompare != 0) return dateCompare;
 
         return a.name.toLowerCase().compareTo(b.name.toLowerCase());
       });
 
-    final monthly = AnalyticsService.monthlyLeakage(sortedSubs);
-    final yearly = AnalyticsService.yearlyWaste(sortedSubs);
+    final monthlySpend = AnalyticsService.monthlyLeakage(sortedSubscriptions);
+    final yearlySpend = AnalyticsService.yearlyWaste(sortedSubscriptions);
 
-    final highestAmount = sortedSubs.isEmpty
-        ? 0.0
-        : sortedSubs
-              .map((sub) => sub.amount)
-              .reduce((current, next) => current > next ? current : next);
-
-    final biggestSubs = highestAmount == 0
+    final highestAmount = _getHighestAmount(sortedSubscriptions);
+    final biggestSubscriptions = highestAmount == 0
         ? <SubscriptionModel>[]
-        : sortedSubs.where((sub) => sub.amount == highestAmount).toList();
+        : sortedSubscriptions
+              .where((subscription) => subscription.amount == highestAmount)
+              .toList();
 
-    final biggestSubPercentage = monthly == 0 || highestAmount == 0
+    final biggestSubPercentage = monthlySpend == 0 || highestAmount == 0
         ? 0.0
-        : (highestAmount / monthly) * 100;
+        : (highestAmount / monthlySpend) * 100;
 
     emit(
       state.copyWith(
         loading: false,
-        allSubs: sortedSubs,
-        monthlySpend: monthly,
-        yearlySpend: yearly,
-        biggestSubs: biggestSubs,
+        allSubs: sortedSubscriptions,
+        monthlySpend: monthlySpend,
+        yearlySpend: yearlySpend,
+        biggestSubs: biggestSubscriptions,
         biggestSubPercentage: biggestSubPercentage,
       ),
     );
   }
 
-  static DateTime _getUpcomingDate(SubscriptionModel sub, DateTime today) {
-    DateTime next = _dateOnly(sub.nextBillDate);
+  static double _getHighestAmount(List<SubscriptionModel> subscriptions) {
+    if (subscriptions.isEmpty) return 0.0;
 
-    int safety = 0;
+    return subscriptions
+        .map((subscription) => subscription.amount)
+        .reduce((current, next) => current > next ? current : next);
+  }
 
-    while (next.isBefore(today) && safety < 500) {
-      next = _addBillingCycle(next, sub.billingCycle);
+  static DateTime _getUpcomingDate(
+    SubscriptionModel subscription,
+    DateTime today,
+  ) {
+    DateTime nextDate = _dateOnly(subscription.nextBillDate);
+
+    var safety = 0;
+
+    while (nextDate.isBefore(today) && safety < 500) {
+      nextDate = _addBillingCycle(nextDate, subscription.billingCycle);
       safety++;
     }
 
-    return next;
+    return nextDate;
   }
 
   static DateTime _addBillingCycle(DateTime date, String cycle) {
@@ -138,13 +142,37 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  static DateTime _readTimestamp(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    return DateTime.now();
+  }
+
+  static double _readDouble(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0;
+  }
+
   static DateTime _dateOnly(DateTime date) {
     return DateTime(date.year, date.month, date.day);
   }
 
   @override
-  Future<void> close() {
-    _sub?.cancel();
+  Future<void> close() async {
+    await _subscription?.cancel();
     return super.close();
   }
 }

@@ -9,7 +9,7 @@ class SummaryCard extends StatefulWidget {
   final String value;
   final String badge;
   final String yearlyValue;
-  final String currencySymbol;
+  final String? currencySymbol;
 
   const SummaryCard({
     super.key,
@@ -17,7 +17,7 @@ class SummaryCard extends StatefulWidget {
     required this.value,
     required this.badge,
     required this.yearlyValue,
-    required this.currencySymbol,
+    this.currencySymbol,
   });
 
   @override

@@ -95,12 +95,13 @@ class DashboardView extends StatelessWidget {
 
                             SummaryCard(
                               label: "Monthly Spend",
-                              currencySymbol: state.allSubs.first.currency,
+                              currencySymbol: state.allSubs.isEmpty
+                                  ? ""
+                                  : state.allSubs.first.currency,
                               value: state.monthlySpend.toStringAsFixed(2),
                               yearlyValue: state.yearlySpend.toStringAsFixed(2),
                               badge: state.allSubs.length.toString(),
                             ),
-
                             if (state.biggestSubs.isNotEmpty) ...[
                               SizedBox(height: 10.h),
                               BiggestSubscriptionCard(

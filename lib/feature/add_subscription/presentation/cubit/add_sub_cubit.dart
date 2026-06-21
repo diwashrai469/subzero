@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+
 import 'package:subzero/common/constant/currency_data.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
@@ -10,56 +12,90 @@ import 'package:subzero/feature/add_subscription/presentation/widgets/add_susbcr
 
 @injectable
 class AddSubCubit extends Cubit<AddSubState> {
+  AddSubCubit(this._router, this._toast, this._firebase)
+    : super(AddSubState(currency: getLocaleCurrency()));
+
   final AppRouters _router;
   final ToastService _toast;
   final SubscriptionFirebaseService _firebase;
 
-  AddSubCubit(this._router, this._toast, this._firebase)
-    : super(AddSubState(currency: getLocaleCurrency()));
+  void setName(String value) {
+    emit(state.copyWith(name: value));
+  }
 
-  void setName(String v) => emit(state.copyWith(name: v));
-  void setAmount(String v) => emit(state.copyWith(amount: v));
-  void setCurrency(String v) => emit(state.copyWith(currency: v));
-  void setCycle(String v) => emit(state.copyWith(billingCycle: v));
-  void setCategory(String v) => emit(state.copyWith(category: v));
-  void setDate(DateTime v) => emit(state.copyWith(firstBillDate: v));
+  void setAmount(String value) {
+    emit(state.copyWith(amount: value));
+  }
+
+  void setCurrency(String value) {
+    emit(state.copyWith(currency: value));
+  }
+
+  void setCycle(String value) {
+    emit(state.copyWith(billingCycle: value));
+  }
+
+  void setCategory(String value) {
+    emit(state.copyWith(category: value));
+  }
+
+  void setDate(DateTime value) {
+    emit(state.copyWith(firstBillDate: value));
+  }
 
   Future<void> save({String? existingId}) async {
-    if (state.name.trim().isEmpty ||
-        state.amount.trim().isEmpty ||
-        state.firstBillDate == null) {
+    final name = state.name.trim();
+    final amountText = state.amount.trim();
+    final firstBillDate = state.firstBillDate;
+
+    if (name.isEmpty || amountText.isEmpty || firstBillDate == null) {
       _toast.i('Please fill name, amount and date');
       return;
     }
 
-    final amount = double.tryParse(state.amount);
-    if (amount == null) {
-      _toast.i('Enter valid amount');
+    final amount = double.tryParse(amountText);
+
+    if (amount == null || amount <= 0) {
+      _toast.i('Enter a valid amount');
       return;
     }
 
     emit(state.copyWith(isLoading: true));
 
-    final id = existingId ?? DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      final id = existingId ?? DateTime.now().millisecondsSinceEpoch.toString();
 
-    final name = state.name.trim();
-    final capitalizedName = name.isEmpty
-        ? name
-        : name[0].toUpperCase() + name.substring(1); // 👈
+      final subscriptionName = _capitalizeFirstLetter(name);
+      final nextBillDate = calcNextBillDate(firstBillDate, state.billingCycle);
 
-    await _firebase.saveSubscription(
-      id: id,
-      name: capitalizedName, // 👈
-      amount: amount,
-      currency: state.currency,
-      billingCycle: state.billingCycle,
-      category: state.category,
-      firstBillDate: state.firstBillDate!,
-      nextBillDate: calcNextBillDate(state.firstBillDate!, state.billingCycle),
-      cancelUrl: null,
-    );
+      await _firebase.saveSubscription(
+        id: id,
+        name: subscriptionName,
+        amount: amount,
+        currency: state.currency,
+        billingCycle: state.billingCycle,
+        category: state.category,
+        firstBillDate: firstBillDate,
+        nextBillDate: nextBillDate,
+        cancelUrl: null,
+      );
 
-    emit(state.copyWith(isLoading: false));
-    _router.replaceAll([const DashboardView()]);
+      _router.replaceAll([const DashboardView()]);
+    } catch (error, stackTrace) {
+      debugPrint('Failed to save subscription: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      _toast.i('Failed to save subscription');
+    } finally {
+      if (!isClosed) {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
+  }
+
+  String _capitalizeFirstLetter(String value) {
+    if (value.isEmpty) return value;
+
+    return value[0].toUpperCase() + value.substring(1);
   }
 }

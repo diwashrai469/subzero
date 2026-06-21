@@ -15,7 +15,8 @@ import 'package:subzero/feature/add_subscription/presentation/view/add_subscript
 import 'package:subzero/feature/dashboard/model/subscription_model.dart' as _i7;
 import 'package:subzero/feature/dashboard/presentation/view/dashboard_view.dart'
     as _i3;
-import 'package:subzero/feature/login/presentation/view/login_view.dart' as _i2;
+import 'package:subzero/feature/login/presentation/view/auth_gate_view.dart'
+    as _i2;
 import 'package:subzero/feature/subscription_info/presentation/view/subscription_info_view.dart'
     as _i4;
 

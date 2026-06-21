@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:uuid/uuid.dart';
 
 @module
 abstract class FirebaseModule {
@@ -10,38 +9,52 @@ abstract class FirebaseModule {
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
 
   @lazySingleton
-  FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
+  FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
 }
 
 @injectable
 class SubscriptionFirebaseService {
+  SubscriptionFirebaseService(this._db, this._auth);
+
   final FirebaseFirestore _db;
-  final FlutterSecureStorage _storage;
+  final FirebaseAuth _auth;
 
-  SubscriptionFirebaseService(this._db, this._storage);
+  String get _uid {
+    final user = _auth.currentUser;
 
-  String? _cachedUserId;
-
-  Future<String> get userId async {
-    if (_cachedUserId != null) return _cachedUserId!;
-
-    String? id = await _storage.read(key: 'device_id');
-
-    if (id == null) {
-      id = const Uuid().v4();
-      await _storage.write(key: 'device_id', value: id);
+    if (user == null) {
+      throw StateError('No user found. Sign in as guest or user first.');
     }
 
-    _cachedUserId = id;
-    return id;
+    return user.uid;
   }
 
   Future<void> saveFcmToken(String token) async {
     try {
-      final uid = await userId;
+      final user = _auth.currentUser;
 
-      await _db.collection('users').doc(uid).set({
-        'fcmToken': token,
+      if (user == null) {
+        debugPrint(
+          '⚠️ Cannot save FCM token because user is not signed in yet.',
+        );
+        return;
+      }
+
+      await _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('fcmTokens')
+          .doc(token)
+          .set({
+            'token': token,
+            'platform': defaultTargetPlatform.name,
+            'isAnonymous': user.isAnonymous,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+
+      await _db.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'isAnonymous': user.isAnonymous,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -63,7 +76,7 @@ class SubscriptionFirebaseService {
     String? cancelUrl,
   }) async {
     try {
-      final uid = await userId;
+      final uid = _uid;
 
       final docRef = _db
           .collection('users')
@@ -88,12 +101,13 @@ class SubscriptionFirebaseService {
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('❌ saveSubscription error: $e');
+      rethrow;
     }
   }
 
   Future<void> deleteSubscription({required String id}) async {
     try {
-      final uid = await userId;
+      final uid = _uid;
 
       await _db
           .collection('users')
@@ -103,13 +117,14 @@ class SubscriptionFirebaseService {
           .delete();
     } catch (e) {
       debugPrint('❌ deleteSubscription error: $e');
+      rethrow;
     }
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> subscriptionStream() async* {
-    final uid = await userId;
+  Stream<QuerySnapshot<Map<String, dynamic>>> subscriptionStream() {
+    final uid = _uid;
 
-    yield* _db
+    return _db
         .collection('users')
         .doc(uid)
         .collection('subscriptions')

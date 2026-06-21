@@ -1,4 +1,6 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
+import 'package:subzero/core/services/firebase/fcm_service.dart';
+import 'package:subzero/core/services/toast/toast_service.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_background.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_brand_header.dart';
@@ -66,7 +70,6 @@ class _AuthGateViewState extends State<AuthGateView>
   Future<void> _startAuthFlow() async {
     await _introController.forward();
 
-    // Keep the splash moment visible for a short premium pause.
     await Future<void>.delayed(const Duration(milliseconds: 550));
 
     if (!mounted) return;
@@ -78,40 +81,30 @@ class _AuthGateViewState extends State<AuthGateView>
     switch (result) {
       case _InitialRoute.dashboard:
         _goToDashboard();
+        return;
 
       case _InitialRoute.onboarding:
-      // _goToOnboarding();
+        // _goToOnboarding();
+        return;
 
       case _InitialRoute.login:
         setState(() {
           _status = AuthGateStatus.unauthenticated;
         });
+        return;
     }
   }
 
   Future<_InitialRoute> _checkInitialRoute() async {
-    // TODO: Replace this with your real logic.
-    //
-    // Example:
-    // final authService = locator<AuthService>();
-    // final localStorage = locator<LocalStorageService>();
-    //
-    // final isFirstLoad = localStorage.read(LocalStorageKeys.isFirstLoad);
-    // final user = authService.currentUser;
-    //
-    // if (isFirstLoad == true || isFirstLoad == null) {
-    //   return _InitialRoute.onboarding;
-    // }
-    //
-    // if (user != null) {
-    //   return _InitialRoute.dashboard;
-    // }
-    //
-    // return _InitialRoute.login;
+    final user = await FirebaseAuth.instance.authStateChanges().first;
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    if (user == null) {
+      return _InitialRoute.login;
+    }
 
-    return _InitialRoute.login;
+    await FCMService.saveTokenForCurrentUser();
+
+    return _InitialRoute.dashboard;
   }
 
   void _goToDashboard() {
@@ -174,14 +167,45 @@ class _AuthGateViewState extends State<AuthGateView>
     }
   }
 
-  void _handleGuestMode() {
+  Future<void> _handleGuestMode() async {
+    if (_isAppleLoading || _isGoogleLoading) return;
+
     HapticFeedback.selectionClick();
 
-    // TODO: Save guest mode if needed.
-    // Example:
-    // locator<LocalStorageService>().write(LocalStorageKeys.isGuest, true);
+    try {
+      final auth = FirebaseAuth.instance;
 
-    _goToDashboard();
+      User? user = auth.currentUser;
+
+      if (user == null) {
+        final credential = await auth.signInAnonymously();
+        user = credential.user;
+      }
+
+      if (user == null) {
+        locator<ToastService>().e('Guest mode failed. Please try again.');
+        return;
+      }
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'isAnonymous': user.isAnonymous,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await FCMService.saveTokenForCurrentUser();
+
+      if (!mounted) return;
+
+      _goToDashboard();
+    } on FirebaseAuthException catch (e) {
+      locator<ToastService>().e('Guest mode failed. Please try again.');
+      debugPrint('Anonymous sign-in failed: ${e.code} - ${e.message}');
+    } catch (e) {
+      locator<ToastService>().e('Guest mode failed. Please try again.');
+      debugPrint('Guest mode failed: $e');
+    }
   }
 
   @override
