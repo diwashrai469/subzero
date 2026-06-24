@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,11 +12,12 @@ import 'package:subzero/core/services/toast/toast_service.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_background.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_brand_header.dart';
+import 'package:subzero/feature/login/presentation/widgets/auth_firebase_service.dart';
 import 'package:subzero/feature/login/presentation/widgets/glass_login_panel.dart';
 import 'package:subzero/feature/login/presentation/widgets/login_legal_text.dart';
 import 'package:subzero/feature/login/presentation/widgets/plusing_dot.dart';
 
-enum AuthGateStatus { checking, unauthenticated, authenticated }
+enum AuthGateStatus { checking, unauthenticated }
 
 @RoutePage()
 class AuthGateView extends StatefulWidget {
@@ -30,10 +30,10 @@ class AuthGateView extends StatefulWidget {
 class _AuthGateViewState extends State<AuthGateView>
     with SingleTickerProviderStateMixin {
   final AppRouters _appRoutes = locator<AppRouters>();
+  final ToastService _toast = locator<ToastService>();
+  final AuthFirebaseService _authService = locator<AuthFirebaseService>();
 
   AuthGateStatus _status = AuthGateStatus.checking;
-
-  bool _isAppleLoading = false;
   bool _isGoogleLoading = false;
 
   late final AnimationController _introController;
@@ -46,7 +46,11 @@ class _AuthGateViewState extends State<AuthGateView>
   @override
   void initState() {
     super.initState();
+    _setupIntroAnimation();
+    _startAuthFlow();
+  }
 
+  void _setupIntroAnimation() {
     _introController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1300),
@@ -63,86 +67,42 @@ class _AuthGateViewState extends State<AuthGateView>
         curve: const Interval(0.0, 0.75, curve: Curves.easeOutCubic),
       ),
     );
-
-    _startAuthFlow();
   }
 
   Future<void> _startAuthFlow() async {
     await _introController.forward();
-
     await Future<void>.delayed(const Duration(milliseconds: 550));
 
     if (!mounted) return;
 
-    final result = await _checkInitialRoute();
+    final hasUser = await _hasActiveUser();
 
     if (!mounted) return;
 
-    switch (result) {
-      case _InitialRoute.dashboard:
-        _goToDashboard();
-        return;
-
-      case _InitialRoute.onboarding:
-        // _goToOnboarding();
-        return;
-
-      case _InitialRoute.login:
-        setState(() {
-          _status = AuthGateStatus.unauthenticated;
-        });
-        return;
+    if (hasUser) {
+      _goToDashboard();
+      return;
     }
+
+    setState(() {
+      _status = AuthGateStatus.unauthenticated;
+    });
   }
 
-  Future<_InitialRoute> _checkInitialRoute() async {
+  Future<bool> _hasActiveUser() async {
     final user = await FirebaseAuth.instance.authStateChanges().first;
 
     if (user == null) {
-      return _InitialRoute.login;
+      return false;
     }
 
     await FCMService.saveTokenForCurrentUser();
 
-    return _InitialRoute.dashboard;
-  }
-
-  void _goToDashboard() {
-    _appRoutes.pushAndPopUntil(const DashboardView(), predicate: (_) => false);
-  }
-
-  // void _goToOnboarding() {
-  //   _appRoutes.pushAndPopUntil(const OnboardingView(), predicate: (_) => false);
-  // }
-
-  Future<void> _handleAppleSignIn() async {
-    if (_isAppleLoading || _isGoogleLoading) return;
-
-    HapticFeedback.lightImpact();
-
-    setState(() {
-      _isAppleLoading = true;
-    });
-
-    try {
-      // TODO: Add real Apple sign-in here.
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-
-      if (!mounted) return;
-
-      // After successful sign-in:
-      // _goToDashboard();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isAppleLoading = false;
-        });
-      }
-    }
+    return true;
   }
 
   Future<void> _handleGoogleSignIn() async {
-    if (_isAppleLoading || _isGoogleLoading) return;
+    if (_isGoogleLoading) return;
 
     HapticFeedback.lightImpact();
 
@@ -151,13 +111,22 @@ class _AuthGateViewState extends State<AuthGateView>
     });
 
     try {
-      // TODO: Add real Google sign-in here.
-      await Future<void>.delayed(const Duration(milliseconds: 900));
+      final result = await _authService.signInWithGoogle();
 
       if (!mounted) return;
 
-      // After successful sign-in:
-      // _goToDashboard();
+      if (result == SubzeroAuthResult.signedIn) {
+        _goToDashboard();
+        return;
+      }
+
+      _toast.e('Google sign-in failed. Please try again.');
+    } catch (error) {
+      debugPrint('Google sign-in failed: $error');
+
+      if (!mounted) return;
+
+      _toast.e('Google sign-in failed. Please try again.');
     } finally {
       if (mounted) {
         setState(() {
@@ -167,45 +136,8 @@ class _AuthGateViewState extends State<AuthGateView>
     }
   }
 
-  Future<void> _handleGuestMode() async {
-    if (_isAppleLoading || _isGoogleLoading) return;
-
-    HapticFeedback.selectionClick();
-
-    try {
-      final auth = FirebaseAuth.instance;
-
-      User? user = auth.currentUser;
-
-      if (user == null) {
-        final credential = await auth.signInAnonymously();
-        user = credential.user;
-      }
-
-      if (user == null) {
-        locator<ToastService>().e('Guest mode failed. Please try again.');
-        return;
-      }
-
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'uid': user.uid,
-        'isAnonymous': user.isAnonymous,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      await FCMService.saveTokenForCurrentUser();
-
-      if (!mounted) return;
-
-      _goToDashboard();
-    } on FirebaseAuthException catch (e) {
-      locator<ToastService>().e('Guest mode failed. Please try again.');
-      debugPrint('Anonymous sign-in failed: ${e.code} - ${e.message}');
-    } catch (e) {
-      locator<ToastService>().e('Guest mode failed. Please try again.');
-      debugPrint('Guest mode failed: $e');
-    }
+  void _goToDashboard() {
+    _appRoutes.pushAndPopUntil(const DashboardView(), predicate: (_) => false);
   }
 
   @override
@@ -228,7 +160,6 @@ class _AuthGateViewState extends State<AuthGateView>
                 ? const Alignment(0, -0.08)
                 : const Alignment(0, -0.58),
           ),
-
           SafeArea(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -271,14 +202,17 @@ class _AuthGateViewState extends State<AuthGateView>
                       switchInCurve: Curves.easeOutCubic,
                       switchOutCurve: Curves.easeInCubic,
                       transitionBuilder: (child, animation) {
-                        final slide = Tween<Offset>(
+                        final slideAnimation = Tween<Offset>(
                           begin: const Offset(0, 0.12),
                           end: Offset.zero,
                         ).animate(animation);
 
                         return FadeTransition(
                           opacity: animation,
-                          child: SlideTransition(position: slide, child: child),
+                          child: SlideTransition(
+                            position: slideAnimation,
+                            child: child,
+                          ),
                         );
                       },
                       child: _showLoginOptions
@@ -287,11 +221,8 @@ class _AuthGateViewState extends State<AuthGateView>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 GlassLoginPanel(
-                                  isAppleLoading: _isAppleLoading,
                                   isGoogleLoading: _isGoogleLoading,
-                                  onApplePressed: _handleAppleSignIn,
                                   onGooglePressed: _handleGoogleSignIn,
-                                  onGuestPressed: _handleGuestMode,
                                 ),
                                 SizedBox(height: 18.h),
                                 const LoginLegalText(),
@@ -312,5 +243,3 @@ class _AuthGateViewState extends State<AuthGateView>
     );
   }
 }
-
-enum _InitialRoute { login, dashboard, onboarding }

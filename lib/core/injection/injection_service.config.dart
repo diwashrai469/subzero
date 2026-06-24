@@ -22,6 +22,8 @@ import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubi
 import 'package:subzero/feature/dashboard/model/subscription_model.dart'
     as _i10;
 import 'package:subzero/feature/dashboard/presentation/cubit/dashboard_cubit.dart'
+    as _i14;
+import 'package:subzero/feature/login/presentation/widgets/auth_firebase_service.dart'
     as _i13;
 import 'package:subzero/feature/subscription_info/presentation/cubit/subscription_info_cubit.dart'
     as _i9;
@@ -62,8 +64,12 @@ extension GetItInjectableX on _i1.GetIt {
           gh<_i11.ToastService>(),
           gh<_i8.SubscriptionFirebaseService>(),
         ));
-    gh.factory<_i13.DashboardCubit>(
-        () => _i13.DashboardCubit(gh<_i8.SubscriptionFirebaseService>()));
+    gh.lazySingleton<_i13.AuthFirebaseService>(() => _i13.AuthFirebaseService(
+          gh<_i5.FirebaseAuth>(),
+          gh<_i6.FirebaseFirestore>(),
+        ));
+    gh.factory<_i14.DashboardCubit>(
+        () => _i14.DashboardCubit(gh<_i8.SubscriptionFirebaseService>()));
     return this;
   }
 }

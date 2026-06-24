@@ -692,7 +692,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
         borderRadius: BorderRadius.circular(18.r),
         child: Ink(
           width: double.infinity,
-          height: 45.h,
+          height: 57.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18.r),
             gradient: const LinearGradient(
