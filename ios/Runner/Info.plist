@@ -104,5 +104,13 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+
+	<!-- Speech Recognition Usage Description -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We need microphone access to let you add subscriptions by voice.</string>
+
+	<!-- Microphone Usage Description -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need microphone access to record your voice input.</string>
 </dict>
 </plist>

@@ -115,7 +115,7 @@ class DashboardView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           KText(
-                            text: 'Signed in with Google',
+                            text: signedInText(user),
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
                             color: Colors.black,
@@ -180,6 +180,21 @@ class DashboardView extends StatelessWidget {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  String signedInText(User? user) {
+    final providers =
+        user?.providerData.map((e) => e.providerId).toList() ?? [];
+
+    if (providers.contains('google.com')) {
+      return 'Signed in with Google';
+    }
+
+    if (providers.contains('apple.com')) {
+      return 'Signed in with Apple';
+    }
+
+    return 'Signed in securely';
   }
 
   @override

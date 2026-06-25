@@ -19,6 +19,8 @@ class AddSubCubit extends Cubit<AddSubState> {
   final ToastService _toast;
   final SubscriptionFirebaseService _firebase;
 
+  ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
+
   void setName(String value) {
     emit(state.copyWith(name: value));
   }

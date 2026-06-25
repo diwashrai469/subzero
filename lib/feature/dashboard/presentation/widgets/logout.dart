@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
@@ -12,7 +13,7 @@ Future<void> logout(BuildContext context) async {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (_) => Container(
+    builder: (sheetContext) => Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
@@ -21,7 +22,6 @@ Future<void> logout(BuildContext context) async {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // drag handle
           Container(
             width: 38.w,
             height: 4.h,
@@ -30,10 +30,7 @@ Future<void> logout(BuildContext context) async {
               borderRadius: BorderRadius.circular(10.r),
             ),
           ),
-
           SizedBox(height: 24.h),
-
-          // icon
           Container(
             width: 52.w,
             height: 52.w,
@@ -43,9 +40,7 @@ Future<void> logout(BuildContext context) async {
             ),
             child: Icon(Icons.logout_rounded, size: 24.sp, color: Colors.black),
           ),
-
           SizedBox(height: 14.h),
-
           KText(
             text: 'Log out?',
             fontSize: 18.sp,
@@ -53,9 +48,7 @@ Future<void> logout(BuildContext context) async {
             color: Colors.black,
             letterSpacing: -0.4,
           ),
-
           SizedBox(height: 6.h),
-
           KText(
             text:
                 'You\'ll need to sign in again to\naccess your subscriptions.',
@@ -63,12 +56,9 @@ Future<void> logout(BuildContext context) async {
             color: Colors.grey.shade500,
             textAlign: TextAlign.center,
           ),
-
           SizedBox(height: 28.h),
-
-          // Log out — primary destructive action
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(true),
+            onTap: () => Navigator.of(sheetContext).pop(true),
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -85,12 +75,9 @@ Future<void> logout(BuildContext context) async {
               ),
             ),
           ),
-
           SizedBox(height: 10.h),
-
-          // Cancel — ghost button
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(false),
+            onTap: () => Navigator.of(sheetContext).pop(false),
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -114,15 +101,34 @@ Future<void> logout(BuildContext context) async {
 
   if (shouldLogout != true) return;
 
-  try {
-    await GoogleSignIn().disconnect();
-  } catch (_) {}
+  final auth = FirebaseAuth.instance;
+  final user = auth.currentUser;
+
+  final providerIds =
+      user?.providerData.map((provider) => provider.providerId).toSet() ??
+      <String>{};
+
+  final signedInWithGoogle = providerIds.contains('google.com');
+
+  if (signedInWithGoogle) {
+    try {
+      await GoogleSignIn().signOut();
+    } catch (error) {
+      debugPrint('⚠️ Google signOut failed: $error');
+    }
+
+    try {
+      await GoogleSignIn().disconnect();
+    } catch (error) {
+      debugPrint('⚠️ Google disconnect failed: $error');
+    }
+  }
 
   try {
-    await GoogleSignIn().signOut();
-  } catch (_) {}
-
-  await FirebaseAuth.instance.signOut();
+    await auth.signOut();
+  } catch (error) {
+    debugPrint('❌ Firebase signOut failed: $error');
+  }
 
   if (!context.mounted) return;
 

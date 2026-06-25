@@ -34,7 +34,9 @@ class _AuthGateViewState extends State<AuthGateView>
   final AuthFirebaseService _authService = locator<AuthFirebaseService>();
 
   AuthGateStatus _status = AuthGateStatus.checking;
+
   bool _isGoogleLoading = false;
+  bool _isAppleLoading = false;
 
   late final AnimationController _introController;
   late final Animation<double> _introFade;
@@ -42,6 +44,7 @@ class _AuthGateViewState extends State<AuthGateView>
 
   bool get _isChecking => _status == AuthGateStatus.checking;
   bool get _showLoginOptions => _status == AuthGateStatus.unauthenticated;
+  bool get _isAuthLoading => _isGoogleLoading || _isAppleLoading;
 
   @override
   void initState() {
@@ -96,13 +99,58 @@ class _AuthGateViewState extends State<AuthGateView>
       return false;
     }
 
-    await FCMService.saveTokenForCurrentUser();
+    try {
+      await FCMService.saveTokenForCurrentUser();
+    } catch (error) {
+      debugPrint('⚠️ Failed to save FCM token during auth check: $error');
+    }
 
     return true;
   }
 
+  Future<void> _handleAppleSignIn() async {
+    if (_isAuthLoading) return;
+
+    HapticFeedback.lightImpact();
+
+    setState(() {
+      _isAppleLoading = true;
+    });
+
+    try {
+      final result = await _authService.signInWithApple();
+
+      if (!mounted) return;
+
+      switch (result) {
+        case SubzeroAuthResult.signedIn:
+          _goToDashboard();
+          return;
+
+        case SubzeroAuthResult.cancelled:
+          return;
+
+        case SubzeroAuthResult.failed:
+          _toast.e('Apple sign-in failed. Please try again.');
+          return;
+      }
+    } catch (error) {
+      debugPrint('Apple sign-in failed: $error');
+
+      if (!mounted) return;
+
+      _toast.e('Apple sign-in failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAppleLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _handleGoogleSignIn() async {
-    if (_isGoogleLoading) return;
+    if (_isAuthLoading) return;
 
     HapticFeedback.lightImpact();
 
@@ -115,12 +163,18 @@ class _AuthGateViewState extends State<AuthGateView>
 
       if (!mounted) return;
 
-      if (result == SubzeroAuthResult.signedIn) {
-        _goToDashboard();
-        return;
-      }
+      switch (result) {
+        case SubzeroAuthResult.signedIn:
+          _goToDashboard();
+          return;
 
-      _toast.e('Google sign-in failed. Please try again.');
+        case SubzeroAuthResult.cancelled:
+          return;
+
+        case SubzeroAuthResult.failed:
+          _toast.e('Google sign-in failed. Please try again.');
+          return;
+      }
     } catch (error) {
       debugPrint('Google sign-in failed: $error');
 
@@ -221,6 +275,8 @@ class _AuthGateViewState extends State<AuthGateView>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 GlassLoginPanel(
+                                  isAppleLoading: _isAppleLoading,
+                                  onApplePressed: _handleAppleSignIn,
                                   isGoogleLoading: _isGoogleLoading,
                                   onGooglePressed: _handleGoogleSignIn,
                                 ),

@@ -223,8 +223,8 @@ class CategoryPicker extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 42.r,
-                              height: 42.r,
+                              width: 65.w,
+                              height: 65.h,
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(15.r),
@@ -237,8 +237,8 @@ class CategoryPicker extends StatelessWidget {
                               child: Center(
                                 child: Image.asset(
                                   cat.emoji,
-                                  width: 28.w,
-                                  height: 28.w,
+                                  width: 40.w,
+                                  height: 40.h,
                                   fit: BoxFit.contain,
                                 ),
                               ),

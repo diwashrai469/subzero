@@ -14,8 +14,8 @@ class SubscriptionInfoCubit extends Cubit<SubscriptionInfoState> {
   // Factory: compute initial state from model
   // ─────────────────────────────────────────────
   static SubscriptionInfoState _buildState(SubscriptionModel sub) {
-    final nextBill = _computeNextBillDate(sub);
     final today = _onlyDate(DateTime.now());
+    final nextBill = _computeNextBillDate(sub);
     final days = nextBill.difference(today).inDays;
     final yearly = _computeYearlyEquivalent(sub);
 
@@ -31,47 +31,128 @@ class SubscriptionInfoCubit extends Cubit<SubscriptionInfoState> {
   // ─────────────────────────────────────────────
   // Date helpers
   // ─────────────────────────────────────────────
-  static DateTime _onlyDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  static DateTime _onlyDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  static int _daysInMonth(int year, int month) {
+    return DateTime(year, month + 1, 0).day;
+  }
+
+  static DateTime _addMonthsFromAnchor({
+    required DateTime baseDate,
+    required int monthsToAdd,
+    required int anchorDay,
+  }) {
+    final rawMonth = baseDate.month + monthsToAdd;
+    final year = baseDate.year + ((rawMonth - 1) ~/ 12);
+    final month = ((rawMonth - 1) % 12) + 1;
+    final maxDay = _daysInMonth(year, month);
+    final day = anchorDay.clamp(1, maxDay);
+
+    return DateTime(year, month, day);
+  }
 
   static DateTime _computeNextBillDate(SubscriptionModel sub) {
     final today = _onlyDate(DateTime.now());
-    DateTime billDate = _onlyDate(sub.firstBillDate);
+    final firstBillDate = _onlyDate(sub.firstBillDate);
+    final anchorDay = sub.firstBillDate.day;
 
-    // Advance until we reach a date >= today (same logic as dashboard)
-    while (billDate.isBefore(today)) {
-      billDate = _advanceByBillingCycle(billDate, sub.billingCycle);
+    if (!firstBillDate.isBefore(today)) {
+      return firstBillDate;
     }
 
-    return billDate;
+    DateTime candidate = firstBillDate;
+    int safety = 0;
+
+    while (candidate.isBefore(today) && safety < 1200) {
+      candidate = _advanceByBillingCycle(
+        candidate,
+        sub.billingCycle,
+        anchorDay: anchorDay,
+      );
+
+      safety++;
+    }
+
+    return candidate;
   }
 
-  static DateTime _advanceByBillingCycle(DateTime date, String cycle) {
-    switch (cycle.toLowerCase()) {
+  static DateTime _advanceByBillingCycle(
+    DateTime date,
+    String cycle, {
+    required int anchorDay,
+  }) {
+    switch (cycle.trim().toLowerCase()) {
       case 'weekly':
         return date.add(const Duration(days: 7));
+
+      case 'fortnightly':
+        return date.add(const Duration(days: 14));
+
       case 'quarterly':
-        return DateTime(date.year, date.month + 3, date.day);
+        return _addMonthsFromAnchor(
+          baseDate: date,
+          monthsToAdd: 3,
+          anchorDay: anchorDay,
+        );
+
+      case 'semi-annually':
+      case 'semi annually':
+      case 'semiannual':
+      case 'semi-annual':
+        return _addMonthsFromAnchor(
+          baseDate: date,
+          monthsToAdd: 6,
+          anchorDay: anchorDay,
+        );
+
       case 'yearly':
       case 'annual':
-        return DateTime(date.year + 1, date.month, date.day);
+      case 'annually':
+        return _addMonthsFromAnchor(
+          baseDate: date,
+          monthsToAdd: 12,
+          anchorDay: anchorDay,
+        );
+
       case 'monthly':
       default:
-        return DateTime(date.year, date.month + 1, date.day);
+        return _addMonthsFromAnchor(
+          baseDate: date,
+          monthsToAdd: 1,
+          anchorDay: anchorDay,
+        );
     }
   }
 
   // ─────────────────────────────────────────────
   // Cost helpers
   // ─────────────────────────────────────────────
+
   static double _computeYearlyEquivalent(SubscriptionModel sub) {
-    switch (sub.billingCycle.toLowerCase()) {
+    switch (sub.billingCycle.trim().toLowerCase()) {
       case 'weekly':
         return sub.amount * 52;
+
+      case 'fortnightly':
+        return sub.amount * 26;
+
       case 'quarterly':
         return sub.amount * 4;
+
+      case 'semi-annually':
+      case 'semi annually':
+      case 'semiannual':
+      case 'semi-annual':
+        return sub.amount * 2;
+
       case 'yearly':
       case 'annual':
+      case 'annually':
         return sub.amount;
+
       case 'monthly':
       default:
         return sub.amount * 12;
@@ -79,23 +160,46 @@ class SubscriptionInfoCubit extends Cubit<SubscriptionInfoState> {
   }
 
   // ─────────────────────────────────────────────
-  // UI helpers (pure functions, safe to expose)
+  // UI helpers
   // ─────────────────────────────────────────────
+
   static Color urgencyColor(int daysUntilBilling) {
-    if (daysUntilBilling == 0) return const Color(0xFFEF4444);
-    if (daysUntilBilling <= 3) return const Color(0xFFF97316);
+    if (daysUntilBilling < 0) {
+      return const Color(0xFFDC2626);
+    }
+
+    if (daysUntilBilling == 0) {
+      return const Color(0xFFEF4444);
+    }
+
+    if (daysUntilBilling <= 3) {
+      return const Color(0xFFF97316);
+    }
+
     return const Color(0xFF22C55E);
   }
 
   static String billingMessage(int days) {
+    if (days < 0) {
+      final overdueDays = days.abs();
+
+      if (overdueDays == 1) return 'Overdue by 1 day';
+      return 'Overdue by $overdueDays days';
+    }
+
     if (days == 0) return 'Billing today';
+    if (days == 1) return 'Billing tomorrow';
     if (days <= 3) return 'Billing very soon';
     if (days <= 7) return 'Billing this week';
+
     return 'Next billing in $days days';
   }
 
   // ─────────────────────────────────────────────
-  // Refresh (e.g. after editing the subscription)
+  // Refresh after editing
   // ─────────────────────────────────────────────
-  void refresh(SubscriptionModel updated) => emit(_buildState(updated));
+
+  void refresh(SubscriptionModel updated) {
+    emit(_buildState(updated));
+  }
 }

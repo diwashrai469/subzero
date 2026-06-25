@@ -22,18 +22,36 @@ DateTime _advanceOneCycle(DateTime from, String cycle) {
   switch (cycle) {
     case 'Weekly':
       return from.add(const Duration(days: 7));
+
     case 'Fortnightly':
       return from.add(const Duration(days: 14));
-    case 'Semi-annually':
-      final nextMonth = from.month + 6;
+
+    case 'Monthly':
+      final nextMonth = from.month + 1;
       final nextYear = from.year + (nextMonth > 12 ? 1 : 0);
-      final clampedMonth = nextMonth > 12 ? nextMonth - 12 : nextMonth;
+      final clampedMonth = nextMonth > 12 ? 1 : nextMonth;
       final maxDay = _daysInMonth(nextYear, clampedMonth);
       return DateTime(nextYear, clampedMonth, from.day.clamp(1, maxDay));
+
+    case 'Quarterly':
+      final nextMonth = from.month + 3;
+      final nextYear = from.year + ((nextMonth - 1) ~/ 12);
+      final clampedMonth = ((nextMonth - 1) % 12) + 1;
+      final maxDay = _daysInMonth(nextYear, clampedMonth);
+      return DateTime(nextYear, clampedMonth, from.day.clamp(1, maxDay));
+
+    case 'Semi-annually':
+      final nextMonth = from.month + 6;
+      final nextYear = from.year + ((nextMonth - 1) ~/ 12);
+      final clampedMonth = ((nextMonth - 1) % 12) + 1;
+      final maxDay = _daysInMonth(nextYear, clampedMonth);
+      return DateTime(nextYear, clampedMonth, from.day.clamp(1, maxDay));
+
     case 'Yearly':
       final maxDay = _daysInMonth(from.year + 1, from.month);
       return DateTime(from.year + 1, from.month, from.day.clamp(1, maxDay));
-    default: // Monthly
+
+    default:
       final nextMonth = from.month + 1;
       final nextYear = from.year + (nextMonth > 12 ? 1 : 0);
       final clampedMonth = nextMonth > 12 ? 1 : nextMonth;

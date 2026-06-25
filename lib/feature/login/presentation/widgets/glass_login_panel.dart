@@ -10,11 +10,15 @@ import 'auth_button.dart';
 class GlassLoginPanel extends StatelessWidget {
   const GlassLoginPanel({
     super.key,
+    required this.isAppleLoading,
     required this.isGoogleLoading,
+    required this.onApplePressed,
     required this.onGooglePressed,
   });
 
+  final bool isAppleLoading;
   final bool isGoogleLoading;
+  final VoidCallback onApplePressed;
   final VoidCallback onGooglePressed;
 
   @override
@@ -45,7 +49,6 @@ class GlassLoginPanel extends StatelessWidget {
               ),
 
               SizedBox(height: 16.h),
-
               AuthButton(
                 label: AuthCopy.continueWithGoogle,
                 icon: GoogleGlyph(size: 18.w),
@@ -56,7 +59,15 @@ class GlassLoginPanel extends StatelessWidget {
                 onTap: onGooglePressed,
               ),
 
-              SizedBox(height: 18.h),
+              SizedBox(height: 12.h),
+              AuthButton(
+                label: AuthCopy.continueWithApple,
+                icon: AppleGlyph(size: 18.w),
+                backgroundColor: Colors.white,
+                foregroundColor: AuthPalette.bgTop,
+                isLoading: isAppleLoading,
+                onTap: onApplePressed,
+              ),
             ],
           ),
         ),
