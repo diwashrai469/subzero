@@ -252,9 +252,16 @@ class DashboardView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             DashboardHeader(
+                              notificationCount: state.notificationCount,
                               onProfileTap: () => _showProfileSheet(context),
-                              onNotificationTap: () {
-                                _showNotificationComingSoon(context);
+                              onNotificationTap: () async {
+                                await context
+                                    .read<DashboardCubit>()
+                                    .markAllNotificationsAsSeen();
+
+                                if (context.mounted) {
+                                  _showNotificationComingSoon(context);
+                                }
                               },
                             ),
 

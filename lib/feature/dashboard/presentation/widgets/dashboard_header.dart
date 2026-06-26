@@ -8,10 +8,12 @@ class DashboardHeader extends StatelessWidget {
     super.key,
     required this.onProfileTap,
     required this.onNotificationTap,
+    this.notificationCount = 0,
   });
 
   final VoidCallback onProfileTap;
   final VoidCallback onNotificationTap;
+  final int notificationCount;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class DashboardHeader extends StatelessWidget {
         _CircleIconButton(
           icon: Icons.notifications_none_rounded,
           onTap: onNotificationTap,
+          badgeCount: notificationCount,
         ),
 
         SizedBox(width: 10.w),
@@ -58,31 +61,71 @@ class DashboardHeader extends StatelessWidget {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({required this.icon, required this.onTap});
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+    this.badgeCount = 0,
+  });
 
   final IconData icon;
   final VoidCallback onTap;
+  final int badgeCount;
 
   @override
   Widget build(BuildContext context) {
+    final hasBadge = badgeCount > 0;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 42.w,
-        height: 42.w,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 42.w,
+            height: 42.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Icon(icon, size: 22.sp, color: Colors.black),
+            child: Icon(icon, size: 22.sp, color: Colors.black),
+          ),
+
+          if (hasBadge)
+            Positioned(
+              top: -2.h,
+              right: -2.w,
+              child: Container(
+                constraints: BoxConstraints(minWidth: 18.w, minHeight: 18.w),
+                padding: EdgeInsets.symmetric(horizontal: 5.w),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: badgeCount > 9 ? BoxShape.rectangle : BoxShape.circle,
+                  borderRadius: badgeCount > 9
+                      ? BorderRadius.circular(20.r)
+                      : null,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  badgeCount > 99 ? '99+' : badgeCount.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

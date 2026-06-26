@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:subzero/core/services/firebase/firebase_module.dart';
@@ -17,22 +18,88 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   final SubscriptionFirebaseService _firebase;
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscription;
+
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscriptionStream;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userStream;
 
   Future<void> load() async {
-    await _subscription?.cancel();
+    await _subscriptionStream?.cancel();
+    await _userStream?.cancel();
 
     emit(state.copyWith(loading: true));
 
-    _subscription = _firebase.subscriptionStream().listen(
+    _listenToSubscriptions();
+    _listenToUserNotificationCount();
+  }
+
+  void _listenToSubscriptions() {
+    _subscriptionStream = _firebase.subscriptionStream().listen(
       (snapshot) {
         final subscriptions = snapshot.docs.map(_mapSubscription).toList();
         _process(subscriptions);
       },
-      onError: (error) {
+      onError: (_) {
         emit(state.copyWith(loading: false));
       },
     );
+  }
+
+  void _listenToUserNotificationCount() {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      emit(state.copyWith(notificationCount: 0));
+      return;
+    }
+
+    _userStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            final data = snapshot.data();
+
+            final unreadCount = _readInt(data?['unreadNotificationCount']);
+
+            emit(state.copyWith(notificationCount: unreadCount));
+          },
+          onError: (_) {
+            emit(state.copyWith(notificationCount: 0));
+          },
+        );
+  }
+
+  Future<void> markAllNotificationsAsSeen() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    final userRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid);
+
+    final unreadNotifications = await userRef
+        .collection('notifications')
+        .where('isSeen', isEqualTo: false)
+        .get();
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (final doc in unreadNotifications.docs) {
+      batch.update(doc.reference, {
+        'isSeen': true,
+        'seenAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    batch.update(userRef, {
+      'hasUnreadNotifications': false,
+      'unreadNotificationCount': 0,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   SubscriptionModel _mapSubscription(
@@ -71,6 +138,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     final yearlySpend = AnalyticsService.yearlyWaste(sortedSubscriptions);
 
     final highestAmount = _getHighestAmount(sortedSubscriptions);
+
     final biggestSubscriptions = highestAmount == 0
         ? <SubscriptionModel>[]
         : sortedSubscriptions
@@ -166,13 +234,30 @@ class DashboardCubit extends Cubit<DashboardState> {
     return 0.0;
   }
 
+  static int _readInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    if (value is String) {
+      return int.tryParse(value) ?? 0;
+    }
+
+    return 0;
+  }
+
   static DateTime _dateOnly(DateTime date) {
     return DateTime(date.year, date.month, date.day);
   }
 
   @override
   Future<void> close() async {
-    await _subscription?.cancel();
+    await _subscriptionStream?.cancel();
+    await _userStream?.cancel();
     return super.close();
   }
 }
