@@ -8,27 +8,29 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i5;
-import 'package:flutter/material.dart' as _i6;
+import 'package:auto_route/auto_route.dart' as _i6;
+import 'package:flutter/material.dart' as _i7;
 import 'package:subzero/feature/add_subscription/presentation/view/add_subscription_view.dart'
     as _i1;
-import 'package:subzero/feature/dashboard/model/subscription_model.dart' as _i7;
+import 'package:subzero/feature/dashboard/model/subscription_model.dart' as _i8;
 import 'package:subzero/feature/dashboard/presentation/view/dashboard_view.dart'
     as _i3;
 import 'package:subzero/feature/login/presentation/view/auth_gate_view.dart'
     as _i2;
-import 'package:subzero/feature/subscription_info/presentation/view/subscription_info_view.dart'
+import 'package:subzero/feature/notification/presentation/view/notification_view.dart'
     as _i4;
+import 'package:subzero/feature/subscription_info/presentation/view/subscription_info_view.dart'
+    as _i5;
 
-abstract class $AppRouters extends _i5.RootStackRouter {
+abstract class $AppRouters extends _i6.RootStackRouter {
   $AppRouters({super.navigatorKey});
 
   @override
-  final Map<String, _i5.PageFactory> pagesMap = {
+  final Map<String, _i6.PageFactory> pagesMap = {
     AddSubscriptionView.name: (routeData) {
       final args = routeData.argsAs<AddSubscriptionViewArgs>(
           orElse: () => const AddSubscriptionViewArgs());
-      return _i5.AutoRoutePage<dynamic>(
+      return _i6.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i1.AddSubscriptionView(
           key: args.key,
@@ -37,22 +39,28 @@ abstract class $AppRouters extends _i5.RootStackRouter {
       );
     },
     AuthGateView.name: (routeData) {
-      return _i5.AutoRoutePage<dynamic>(
+      return _i6.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const _i2.AuthGateView(),
       );
     },
     DashboardView.name: (routeData) {
-      return _i5.AutoRoutePage<dynamic>(
+      return _i6.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const _i3.DashboardView(),
       );
     },
+    NotificationView.name: (routeData) {
+      return _i6.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i4.NotificationView(),
+      );
+    },
     SubscriptionInfoView.name: (routeData) {
       final args = routeData.argsAs<SubscriptionInfoViewArgs>();
-      return _i5.AutoRoutePage<dynamic>(
+      return _i6.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i4.SubscriptionInfoView(
+        child: _i5.SubscriptionInfoView(
           key: args.key,
           sub: args.sub,
         ),
@@ -63,11 +71,11 @@ abstract class $AppRouters extends _i5.RootStackRouter {
 
 /// generated route for
 /// [_i1.AddSubscriptionView]
-class AddSubscriptionView extends _i5.PageRouteInfo<AddSubscriptionViewArgs> {
+class AddSubscriptionView extends _i6.PageRouteInfo<AddSubscriptionViewArgs> {
   AddSubscriptionView({
-    _i6.Key? key,
-    _i7.SubscriptionModel? existingSub,
-    List<_i5.PageRouteInfo>? children,
+    _i7.Key? key,
+    _i8.SubscriptionModel? existingSub,
+    List<_i6.PageRouteInfo>? children,
   }) : super(
           AddSubscriptionView.name,
           args: AddSubscriptionViewArgs(
@@ -79,8 +87,8 @@ class AddSubscriptionView extends _i5.PageRouteInfo<AddSubscriptionViewArgs> {
 
   static const String name = 'AddSubscriptionView';
 
-  static const _i5.PageInfo<AddSubscriptionViewArgs> page =
-      _i5.PageInfo<AddSubscriptionViewArgs>(name);
+  static const _i6.PageInfo<AddSubscriptionViewArgs> page =
+      _i6.PageInfo<AddSubscriptionViewArgs>(name);
 }
 
 class AddSubscriptionViewArgs {
@@ -89,9 +97,9 @@ class AddSubscriptionViewArgs {
     this.existingSub,
   });
 
-  final _i6.Key? key;
+  final _i7.Key? key;
 
-  final _i7.SubscriptionModel? existingSub;
+  final _i8.SubscriptionModel? existingSub;
 
   @override
   String toString() {
@@ -101,8 +109,8 @@ class AddSubscriptionViewArgs {
 
 /// generated route for
 /// [_i2.AuthGateView]
-class AuthGateView extends _i5.PageRouteInfo<void> {
-  const AuthGateView({List<_i5.PageRouteInfo>? children})
+class AuthGateView extends _i6.PageRouteInfo<void> {
+  const AuthGateView({List<_i6.PageRouteInfo>? children})
       : super(
           AuthGateView.name,
           initialChildren: children,
@@ -110,13 +118,13 @@ class AuthGateView extends _i5.PageRouteInfo<void> {
 
   static const String name = 'AuthGateView';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i6.PageInfo<void> page = _i6.PageInfo<void>(name);
 }
 
 /// generated route for
 /// [_i3.DashboardView]
-class DashboardView extends _i5.PageRouteInfo<void> {
-  const DashboardView({List<_i5.PageRouteInfo>? children})
+class DashboardView extends _i6.PageRouteInfo<void> {
+  const DashboardView({List<_i6.PageRouteInfo>? children})
       : super(
           DashboardView.name,
           initialChildren: children,
@@ -124,16 +132,30 @@ class DashboardView extends _i5.PageRouteInfo<void> {
 
   static const String name = 'DashboardView';
 
-  static const _i5.PageInfo<void> page = _i5.PageInfo<void>(name);
+  static const _i6.PageInfo<void> page = _i6.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i4.SubscriptionInfoView]
-class SubscriptionInfoView extends _i5.PageRouteInfo<SubscriptionInfoViewArgs> {
+/// [_i4.NotificationView]
+class NotificationView extends _i6.PageRouteInfo<void> {
+  const NotificationView({List<_i6.PageRouteInfo>? children})
+      : super(
+          NotificationView.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'NotificationView';
+
+  static const _i6.PageInfo<void> page = _i6.PageInfo<void>(name);
+}
+
+/// generated route for
+/// [_i5.SubscriptionInfoView]
+class SubscriptionInfoView extends _i6.PageRouteInfo<SubscriptionInfoViewArgs> {
   SubscriptionInfoView({
-    _i6.Key? key,
-    required _i7.SubscriptionModel sub,
-    List<_i5.PageRouteInfo>? children,
+    _i7.Key? key,
+    required _i8.SubscriptionModel sub,
+    List<_i6.PageRouteInfo>? children,
   }) : super(
           SubscriptionInfoView.name,
           args: SubscriptionInfoViewArgs(
@@ -145,8 +167,8 @@ class SubscriptionInfoView extends _i5.PageRouteInfo<SubscriptionInfoViewArgs> {
 
   static const String name = 'SubscriptionInfoView';
 
-  static const _i5.PageInfo<SubscriptionInfoViewArgs> page =
-      _i5.PageInfo<SubscriptionInfoViewArgs>(name);
+  static const _i6.PageInfo<SubscriptionInfoViewArgs> page =
+      _i6.PageInfo<SubscriptionInfoViewArgs>(name);
 }
 
 class SubscriptionInfoViewArgs {
@@ -155,9 +177,9 @@ class SubscriptionInfoViewArgs {
     required this.sub,
   });
 
-  final _i6.Key? key;
+  final _i7.Key? key;
 
-  final _i7.SubscriptionModel sub;
+  final _i8.SubscriptionModel sub;
 
   @override
   String toString() {

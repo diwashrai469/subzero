@@ -173,15 +173,6 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  void _showNotificationComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Notifications coming soon.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   String signedInText(User? user) {
     final providers =
         user?.providerData.map((e) => e.providerId).toList() ?? [];
@@ -260,7 +251,9 @@ class DashboardView extends StatelessWidget {
                                     .markAllNotificationsAsSeen();
 
                                 if (context.mounted) {
-                                  _showNotificationComingSoon(context);
+                                  locator<AppRouters>().push(
+                                    const NotificationView(),
+                                  );
                                 }
                               },
                             ),

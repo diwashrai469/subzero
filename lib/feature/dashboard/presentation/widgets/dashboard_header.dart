@@ -29,7 +29,7 @@ class DashboardHeader extends StatelessWidget {
               KText(
                 text: 'SubZero',
                 fontSize: 29.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.bold,
                 color: Colors.black,
                 letterSpacing: -0.5,
               ),

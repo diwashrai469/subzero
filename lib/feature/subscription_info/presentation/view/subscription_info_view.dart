@@ -182,7 +182,7 @@ class _SubscriptionInfoBody extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 250.h,
+            expandedHeight: 265.h,
             pinned: false,
             systemOverlayStyle: SystemUiOverlayStyle.dark,
             backgroundColor: const Color(0xFFF5F5F7),
@@ -200,6 +200,17 @@ class _SubscriptionInfoBody extends StatelessWidget {
                   AddSubscriptionView(existingSub: sub),
                 ),
               ),
+
+              NavButton(
+                onTap: () => _confirmDelete(context),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: const Color(0xFFEF4444),
+                  size: 19.sp,
+                ),
+              ),
+
+              SizedBox(width: 10.w),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: HeroHeader(
@@ -271,34 +282,6 @@ class _SubscriptionInfoBody extends StatelessWidget {
                         trailing: const ActivePill(),
                       ),
                     ],
-                  ),
-
-                  SizedBox(height: 32.h),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 45.h,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _confirmDelete(context),
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Color(0xFFEF4444),
-                      ),
-                      label: Text(
-                        'Delete Subscription',
-                        style: TextStyle(
-                          color: const Color(0xFFEF4444),
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFEF4444)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),

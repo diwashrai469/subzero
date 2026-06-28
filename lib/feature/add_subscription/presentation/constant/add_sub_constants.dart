@@ -1,20 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:subzero/common/constant/app_image.dart';
-
-// ── Category model ─────────────────────────────────────────────
-class SubscriptionCategoryModel {
-  final String label;
-  final String emoji;
-  final Color iconColor;
-  final Color bgColor;
-
-  const SubscriptionCategoryModel({
-    required this.label,
-    required this.emoji,
-    required this.iconColor,
-    required this.bgColor,
-  });
-}
+import 'package:subzero/feature/add_subscription/model/subscription_category_model.dart';
 
 const Color bgColor = Color(0xFFF6F7F9);
 const Color cardColor = Colors.white;

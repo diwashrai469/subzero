@@ -40,7 +40,6 @@ dependencies:
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^8.1.0
   crypto: ^3.0.7
-  speech_to_text: ^6.6.2
 
 
 
@@ -85,9 +84,12 @@ flutter:
 
 
   fonts:
-    - family: Manrope
+    # - family: Poppins
+    #   fonts:
+    #     - asset: fonts/poppins/Poppins-Regular.ttf
+    - family: Roboto
       fonts:
-        - asset: fonts/poppins/Poppins-Regular.ttf
+        - asset: fonts/roboto/static/Roboto-Regular.ttf
        
       
   #   - family: Trajan Pro

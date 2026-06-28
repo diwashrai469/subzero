@@ -15,18 +15,20 @@ import 'package:injectable/injectable.dart' as _i2;
 import 'package:subzero/common/constant/english_calender_constants.dart' as _i4;
 import 'package:subzero/common/constant/nepali_calender_constants.dart' as _i7;
 import 'package:subzero/core/app_routers/app_routers.dart' as _i3;
-import 'package:subzero/core/services/firebase/firebase_module.dart' as _i8;
-import 'package:subzero/core/services/toast/toast_service.dart' as _i11;
+import 'package:subzero/core/services/firebase/firebase_module.dart' as _i9;
+import 'package:subzero/core/services/toast/toast_service.dart' as _i12;
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart'
-    as _i12;
-import 'package:subzero/feature/dashboard/model/subscription_model.dart'
-    as _i10;
-import 'package:subzero/feature/dashboard/presentation/cubit/dashboard_cubit.dart'
-    as _i14;
-import 'package:subzero/feature/login/presentation/widgets/auth_firebase_service.dart'
     as _i13;
+import 'package:subzero/feature/dashboard/model/subscription_model.dart'
+    as _i11;
+import 'package:subzero/feature/dashboard/presentation/cubit/dashboard_cubit.dart'
+    as _i15;
+import 'package:subzero/feature/login/presentation/widgets/auth_firebase_service.dart'
+    as _i14;
+import 'package:subzero/feature/notification/presentation/cubit/notification_cubit.dart'
+    as _i8;
 import 'package:subzero/feature/subscription_info/presentation/cubit/subscription_info_cubit.dart'
-    as _i9;
+    as _i10;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -47,31 +49,32 @@ extension GetItInjectableX on _i1.GetIt {
     gh.lazySingleton<_i6.FirebaseFirestore>(() => firebaseModule.firestore);
     gh.lazySingleton<_i7.NepaliCalenderConstants>(
         () => _i7.NepaliCalenderConstants());
-    gh.factory<_i8.SubscriptionFirebaseService>(
-        () => _i8.SubscriptionFirebaseService(
+    gh.factory<_i8.NotificationCubit>(() => _i8.NotificationCubit());
+    gh.factory<_i9.SubscriptionFirebaseService>(
+        () => _i9.SubscriptionFirebaseService(
               gh<_i6.FirebaseFirestore>(),
               gh<_i5.FirebaseAuth>(),
             ));
-    gh.factoryParam<_i9.SubscriptionInfoCubit, _i10.SubscriptionModel, dynamic>(
-        (
+    gh.factoryParam<_i10.SubscriptionInfoCubit, _i11.SubscriptionModel,
+        dynamic>((
       sub,
       _,
     ) =>
-            _i9.SubscriptionInfoCubit(sub));
-    gh.lazySingleton<_i11.ToastService>(() => _i11.ToastService());
-    gh.factory<_i12.AddSubCubit>(() => _i12.AddSubCubit(
+        _i10.SubscriptionInfoCubit(sub));
+    gh.lazySingleton<_i12.ToastService>(() => _i12.ToastService());
+    gh.factory<_i13.AddSubCubit>(() => _i13.AddSubCubit(
           gh<_i3.AppRouters>(),
-          gh<_i11.ToastService>(),
-          gh<_i8.SubscriptionFirebaseService>(),
+          gh<_i12.ToastService>(),
+          gh<_i9.SubscriptionFirebaseService>(),
         ));
-    gh.lazySingleton<_i13.AuthFirebaseService>(() => _i13.AuthFirebaseService(
+    gh.lazySingleton<_i14.AuthFirebaseService>(() => _i14.AuthFirebaseService(
           gh<_i5.FirebaseAuth>(),
           gh<_i6.FirebaseFirestore>(),
         ));
-    gh.factory<_i14.DashboardCubit>(
-        () => _i14.DashboardCubit(gh<_i8.SubscriptionFirebaseService>()));
+    gh.factory<_i15.DashboardCubit>(
+        () => _i15.DashboardCubit(gh<_i9.SubscriptionFirebaseService>()));
     return this;
   }
 }
 
-class _$FirebaseModule extends _i8.FirebaseModule {}
+class _$FirebaseModule extends _i9.FirebaseModule {}

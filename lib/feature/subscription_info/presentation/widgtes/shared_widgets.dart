@@ -42,30 +42,27 @@ class EditButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: 14.w),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 38.r,
-          height: 38.r,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            Icons.edit_rounded,
-            size: 17.sp,
-            color: const Color(0xFF374151),
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38.r,
+        height: 38.r,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.edit_rounded,
+          size: 17.sp,
+          color: const Color(0xFF374151),
         ),
       ),
     );
