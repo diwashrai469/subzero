@@ -9,6 +9,10 @@ class SubscriptionModel {
   final String category;
   final String? cancelUrl;
 
+  final String? lastReminderType;
+  final String? lastReminderId;
+  final DateTime? lastReminderSentAt;
+
   const SubscriptionModel({
     required this.id,
     required this.name,
@@ -19,6 +23,9 @@ class SubscriptionModel {
     required this.billingCycle,
     required this.category,
     this.cancelUrl,
+    this.lastReminderType,
+    this.lastReminderId,
+    this.lastReminderSentAt,
   });
 
   SubscriptionModel copyWith({
@@ -31,6 +38,9 @@ class SubscriptionModel {
     String? billingCycle,
     String? category,
     String? cancelUrl,
+    String? lastReminderType,
+    String? lastReminderId,
+    DateTime? lastReminderSentAt,
   }) {
     return SubscriptionModel(
       id: id ?? this.id,
@@ -42,6 +52,9 @@ class SubscriptionModel {
       billingCycle: billingCycle ?? this.billingCycle,
       category: category ?? this.category,
       cancelUrl: cancelUrl ?? this.cancelUrl,
+      lastReminderType: lastReminderType ?? this.lastReminderType,
+      lastReminderId: lastReminderId ?? this.lastReminderId,
+      lastReminderSentAt: lastReminderSentAt ?? this.lastReminderSentAt,
     );
   }
 }

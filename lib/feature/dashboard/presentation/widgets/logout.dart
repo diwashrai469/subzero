@@ -7,6 +7,7 @@ import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 Future<void> logout(BuildContext context) async {
   final shouldLogout = await showModalBottomSheet<bool>(
@@ -44,7 +45,7 @@ Future<void> logout(BuildContext context) async {
           KText(
             text: 'Log out?',
             fontSize: 18.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.bold,
             color: Colors.black,
             letterSpacing: -0.4,
           ),
@@ -63,7 +64,7 @@ Future<void> logout(BuildContext context) async {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 15.h),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: errorColor,
                 borderRadius: BorderRadius.circular(14.r),
               ),
               child: KText(

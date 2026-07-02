@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
@@ -23,15 +24,12 @@ PreferredSizeWidget addSubAppbar(
         onTap: () => locator<AppRouters>().popForced(),
       ),
     ),
-    title: Text(
-      isEditing ? 'Edit Subscription' : 'Add Subscription',
+    title: KText(
+      text: isEditing ? 'Edit Subscription' : 'Add Subscription',
+      isHeading: true,
+      fontSize: 21.sp,
+      color: textPrimary,
       textAlign: TextAlign.center,
-      softWrap: true,
-      style: TextStyle(
-        fontSize: 18.sp,
-        fontWeight: FontWeight.w800,
-        color: textPrimary,
-      ),
     ),
   );
 }

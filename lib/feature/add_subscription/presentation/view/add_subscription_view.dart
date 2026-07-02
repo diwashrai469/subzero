@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/currency_data.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
@@ -192,17 +193,13 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            softWrap: true,
-            style: TextStyle(
-              fontSize: 17.sp,
-              height: 1.2,
-              fontWeight: FontWeight.w900,
-              color: textPrimary,
-            ),
+          KText(
+            text: title,
+            fontSize: 17.sp,
+            fontWeight: FontWeight.bold,
+            color: textPrimary,
           ),
-          SizedBox(height: 5.h),
+          SizedBox(height: 2.h),
           Text(
             subtitle,
             softWrap: true,

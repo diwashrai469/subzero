@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
@@ -17,6 +18,7 @@ import 'package:subzero/feature/dashboard/presentation/widgets/empty_state.dart'
 import 'package:subzero/feature/dashboard/presentation/widgets/logout.dart';
 import 'package:subzero/feature/dashboard/presentation/widgets/sub_row.dart';
 import 'package:subzero/feature/dashboard/presentation/widgets/summary_card.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 @RoutePage()
 class DashboardView extends StatelessWidget {
@@ -50,7 +52,7 @@ class DashboardView extends StatelessWidget {
             borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: .min,
             children: [
               Container(
                 width: 42.w,
@@ -61,11 +63,11 @@ class DashboardView extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 24.h),
+              lHeightSpan,
 
               LargeProfileAvatar(user: user),
 
-              SizedBox(height: 14.h),
+              mHeightSpan,
 
               KText(
                 text: displayName(user),
@@ -73,22 +75,22 @@ class DashboardView extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
                 letterSpacing: -0.4,
-                textAlign: TextAlign.center,
+                textAlign: .center,
               ),
 
-              SizedBox(height: 4.h),
+              xsHeightSpan,
 
               KText(
                 text: user?.email ?? 'No email available',
                 fontSize: 13.sp,
                 color: Colors.grey.shade500,
-                textAlign: TextAlign.center,
+                textAlign: .center,
               ),
 
-              SizedBox(height: 24.h),
+              lHeightSpan,
 
               Container(
-                width: double.infinity,
+                width: .infinity,
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F7),
@@ -109,10 +111,10 @@ class DashboardView extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    mHeightSpan,
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: .start,
                         children: [
                           KText(
                             text: signedInText(user),
@@ -120,7 +122,7 @@ class DashboardView extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                             color: Colors.black,
                           ),
-                          SizedBox(height: 2.h),
+                          xsHeightSpan,
                           KText(
                             text: 'Your subscriptions are synced securely.',
                             fontSize: 12.sp,
@@ -133,7 +135,7 @@ class DashboardView extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 18.h),
+              mHeightSpan,
 
               GestureDetector(
                 onTap: () async {
@@ -141,21 +143,21 @@ class DashboardView extends StatelessWidget {
                   await logout(context);
                 },
                 child: Container(
-                  width: double.infinity,
+                  width: .infinity,
                   height: 52.h,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFEFEF),
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: .center,
                     children: [
                       Icon(
                         Icons.logout_rounded,
                         size: 20.sp,
                         color: const Color(0xFFD93025),
                       ),
-                      SizedBox(width: 8.w),
+                      sWidthSpan,
                       KText(
                         text: 'Log out',
                         fontSize: 14.sp,
@@ -199,10 +201,9 @@ class DashboardView extends StatelessWidget {
           statusBarBrightness: Brightness.light,
         ),
         child: Scaffold(
-          backgroundColor: const Color(0xFFF5F5F7),
           floatingActionButton: Container(
-            width: 55.w,
-            height: 55.h,
+            width: 65.w,
+            height: 65.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
@@ -217,10 +218,10 @@ class DashboardView extends StatelessWidget {
               onPressed: () {
                 locator<AppRouters>().push(AddSubscriptionView());
               },
-              backgroundColor: Colors.black,
+              backgroundColor: primaryColor,
               elevation: 0,
               shape: const CircleBorder(),
-              child: Icon(Icons.add_rounded, color: Colors.white, size: 36.sp),
+              child: Icon(Icons.add_rounded, color: Colors.white, size: 32.sp),
             ),
           ),
           body: SafeArea(
@@ -240,25 +241,25 @@ class DashboardView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(16.dg),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: .start,
                           children: [
+                            sHeightSpan,
                             DashboardHeader(
                               notificationCount: state.notificationCount,
                               onProfileTap: () => _showProfileSheet(context),
                               onNotificationTap: () async {
-                                await context
-                                    .read<DashboardCubit>()
-                                    .markAllNotificationsAsSeen();
-
                                 if (context.mounted) {
                                   locator<AppRouters>().push(
                                     const NotificationView(),
                                   );
+                                  await context
+                                      .read<DashboardCubit>()
+                                      .markAllNotificationsAsSeen();
                                 }
                               },
                             ),
 
-                            SizedBox(height: 30.h),
+                            lHeightSpan,
 
                             SummaryCard(
                               label: 'Monthly Spend',
@@ -269,7 +270,7 @@ class DashboardView extends StatelessWidget {
                             ),
 
                             if (state.biggestSubs.isNotEmpty) ...[
-                              SizedBox(height: 10.h),
+                              sHeightSpan,
                               BiggestSubscriptionCard(
                                 subscriptions: state.biggestSubs,
                                 percentage: state.biggestSubPercentage,
@@ -286,7 +287,8 @@ class DashboardView extends StatelessWidget {
                         child: KText(
                           text: 'All SUBSCRIPTIONS',
                           textAlign: TextAlign.left,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                          isHeading: true,
                         ),
                       ),
                     ),

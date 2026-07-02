@@ -2,6 +2,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppImage {
   static const appIcon = "assets/category/subzero_logo.png";
+  static const appText = "assets/category/subzero_text.png";
+  static const editIcon = "assets/category/edit.png";
+  static const deleteIcon = "assets/category/delete.png";
 
   static const String carLoan = 'assets/category/car-loan.png';
   static const String cloudServer = 'assets/category/cloud-server.png';

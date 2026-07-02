@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────
 //  Custom Date Picker Dialog
@@ -433,7 +434,7 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
                   borderRadius: BorderRadius.circular(14.r),
                   boxShadow: [
                     BoxShadow(
-                      color: _accentColor.withValues(alpha: 0.35),
+                      color: secondaryColor.withValues(alpha: 0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),

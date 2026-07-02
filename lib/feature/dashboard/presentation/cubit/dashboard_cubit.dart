@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:subzero/core/services/firebase/firebase_module.dart';
@@ -71,35 +73,47 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   Future<void> markAllNotificationsAsSeen() async {
-    final user = FirebaseAuth.instance.currentUser;
+    try {
+      final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
+      if (user == null) return;
 
-    final userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid);
 
-    final unreadNotifications = await userRef
-        .collection('notifications')
-        .where('isSeen', isEqualTo: false)
-        .get();
+      final unreadNotifications = await userRef
+          .collection('notifications')
+          .where('isSeen', isEqualTo: false)
+          .get();
 
-    final batch = FirebaseFirestore.instance.batch();
+      final batch = FirebaseFirestore.instance.batch();
 
-    for (final doc in unreadNotifications.docs) {
-      batch.update(doc.reference, {
-        'isSeen': true,
-        'seenAt': FieldValue.serverTimestamp(),
-      });
+      for (final doc in unreadNotifications.docs) {
+        batch.update(doc.reference, {
+          'isSeen': true,
+          'seenAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      batch.set(userRef, {
+        'hasUnreadNotifications': false,
+        'unreadNotificationCount': 0,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await batch.commit();
+
+      final isBadgeSupported =
+          await FlutterAppBadgeControl.isAppBadgeSupported();
+
+      if (isBadgeSupported) {
+        await FlutterAppBadgeControl.removeBadge();
+      }
+    } catch (e) {
+      debugPrint('Failed to mark notifications as seen: $e');
     }
-
-    batch.update(userRef, {
-      'hasUnreadNotifications': false,
-      'unreadNotificationCount': 0,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    await batch.commit();
   }
 
   SubscriptionModel _mapSubscription(
@@ -116,6 +130,11 @@ class DashboardCubit extends Cubit<DashboardState> {
       nextBillDate: _readTimestamp(data['nextBillDate']),
       billingCycle: data['billingCycle'] ?? '',
       category: data['category'] ?? '',
+      cancelUrl: data['cancelUrl'],
+
+      lastReminderType: data['lastReminderType'],
+      lastReminderId: data['lastReminderId'],
+      lastReminderSentAt: _readNullableTimestamp(data['lastReminderSentAt']),
     );
   }
 
@@ -173,41 +192,38 @@ class DashboardCubit extends Cubit<DashboardState> {
     SubscriptionModel subscription,
     DateTime today,
   ) {
-    DateTime nextDate = _dateOnly(subscription.nextBillDate);
+    final nextDate = _dateOnly(subscription.nextBillDate);
 
-    var safety = 0;
-
-    while (nextDate.isBefore(today) && safety < 500) {
-      nextDate = _addBillingCycle(nextDate, subscription.billingCycle);
-      safety++;
+    // Frontend workaround:
+    // If backend already moved nextBillDate to next cycle after today's reminder,
+    // still keep this subscription sorted as "today" until the day ends.
+    if (_wasTodayReminderSentToday(subscription, today)) {
+      return today;
     }
 
     return nextDate;
   }
 
-  static DateTime _addBillingCycle(DateTime date, String cycle) {
-    switch (cycle.toLowerCase().trim()) {
-      case 'daily':
-        return date.add(const Duration(days: 1));
+  static bool _wasTodayReminderSentToday(
+    SubscriptionModel subscription,
+    DateTime today,
+  ) {
+    final lastReminderSentAt = subscription.lastReminderSentAt;
 
-      case 'weekly':
-        return date.add(const Duration(days: 7));
+    if (lastReminderSentAt == null) return false;
 
-      case 'fortnightly':
-        return date.add(const Duration(days: 14));
+    final sentDate = _dateOnly(lastReminderSentAt);
 
-      case 'monthly':
-        return DateTime(date.year, date.month + 1, date.day);
+    final todayKey =
+        '${today.year.toString().padLeft(4, '0')}-'
+        '${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
 
-      case 'quarterly':
-        return DateTime(date.year, date.month + 3, date.day);
+    final expectedReminderId = 'today_$todayKey';
 
-      case 'yearly':
-        return DateTime(date.year + 1, date.month, date.day);
-
-      default:
-        return date;
-    }
+    return subscription.lastReminderType == 'today' &&
+        subscription.lastReminderId == expectedReminderId &&
+        sentDate == today;
   }
 
   static DateTime _readTimestamp(dynamic value) {
@@ -220,6 +236,18 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
 
     return DateTime.now();
+  }
+
+  static DateTime? _readNullableTimestamp(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    return null;
   }
 
   static double _readDouble(dynamic value) {

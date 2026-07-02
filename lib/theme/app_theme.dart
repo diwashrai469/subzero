@@ -4,13 +4,13 @@ import '../common/constant/app_dimens.dart';
 
 //Add your custom colors and fonts for the app in this file
 const fontFamily = "Poppins";
-const primaryColor = Color(0xFF008080);
-const secondaryColor = Color(0xFFFF6F61);
+const primaryColor = Color.fromARGB(255, 6, 47, 94);
+const secondaryColor = Color(0xFF006C73);
 
 //Other colors for app
 const avatarBackgroundColor = Color.fromRGBO(91, 91, 91, 91);
-const Color shadowColor = Color.fromRGBO(0, 0, 0, 0.04);
-const scaffoldBgColor = Color(0xFFF7F9FB);
+const shadowColor = Color.fromRGBO(0, 0, 0, 0.04);
+const scaffoldBgColor = Color(0xFFF5F5F7);
 
 const disabledColor = Color(0xFFbcbcbc);
 const darkSucessColor = Color.fromARGB(255, 22, 101, 52);
@@ -80,8 +80,8 @@ abstract class AppThemes {
             color: Colors.black,
             fontSize: AppDimens.headlineFontSizeXXSmall,
             fontFamily: fontFamily,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 0.3,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.4,
           ),
         ),
     visualDensity: VisualDensity.adaptivePlatformDensity,

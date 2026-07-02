@@ -229,7 +229,9 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                               vertical: 11.h,
                             ),
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.black : Colors.white,
+                              color: isSelected
+                                  ? Color(0xFF006C73)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Row(

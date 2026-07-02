@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 Widget saveButton({
   required AddSubState state,
@@ -29,16 +30,10 @@ Widget saveButton({
         height: 57.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18.r),
-          gradient: LinearGradient(
-            colors: isLoading
-                ? [const Color(0xFF374151), const Color(0xFF1F2937)]
-                : [const Color(0xFF111827), const Color(0xFF030712)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: primaryColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isLoading ? 0.10 : 0.18),
+              color: primaryColor.withValues(alpha: isLoading ? 0.10 : 0.22),
               blurRadius: 18,
               offset: const Offset(0, 10),
             ),

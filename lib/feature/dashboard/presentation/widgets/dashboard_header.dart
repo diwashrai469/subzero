@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/app_image.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({
@@ -25,15 +28,22 @@ class DashboardHeader extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              KText(
-                text: 'SubZero',
-                fontSize: 29.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                letterSpacing: -0.5,
+              ClipRect(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  heightFactor: 0.55.h,
+                  child: Image.asset(
+                    AppImage.appText,
+                    width: 120.w,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-              SizedBox(height: 2.h),
+
+              sHeightSpan,
+
               KText(
                 text: 'Your recurring spend, simplified.',
                 fontSize: 14.sp,
@@ -145,7 +155,7 @@ class _SmallProfileAvatar extends StatelessWidget {
       width: 44.w,
       height: 44.w,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: primaryColor,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
@@ -185,7 +195,7 @@ class LargeProfileAvatar extends StatelessWidget {
       width: 84.w,
       height: 84.w,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: primaryColor,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(

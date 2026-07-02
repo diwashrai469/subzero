@@ -118,13 +118,11 @@ class _Header extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 KText(
                   text: 'Notifications',
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w900,
-                  color: NotificationColors.ink,
-                  letterSpacing: -0.8,
+                  isHeading: true,
+                  fontSize: 21.sp,
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),

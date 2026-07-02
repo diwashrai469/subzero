@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 Widget addSubCycleSelector({
   required AddSubState state,
@@ -32,9 +33,9 @@ Widget addSubCycleSelector({
               curve: Curves.easeOut,
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               decoration: BoxDecoration(
-                color: selected ? textPrimary : Colors.white,
+                color: selected ? secondaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(100.r),
-                border: Border.all(color: selected ? textPrimary : borderColor),
+                border: Border.all(color: borderColor),
                 boxShadow: selected
                     ? [
                         BoxShadow(

@@ -29,18 +29,18 @@ class BiggestSubscriptionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF18181B),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color.fromARGB(255, 6, 47, 94),
+
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
           width: 0.5,
         ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(18.dg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Top row: label + percentage pill ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -51,7 +51,6 @@ class BiggestSubscriptionCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ── Body: name + amount ──
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -92,10 +91,6 @@ class BiggestSubscriptionCard extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────
-// Sub-widgets
-// ─────────────────────────────────────────────
 
 class _Label extends StatelessWidget {
   final String text;
@@ -168,7 +163,6 @@ class _AmountBlock extends StatelessWidget {
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
                   color: Color(0x80FFFFFF),
-                  // shift up to align with the large number
                   height: 1.55,
                 ),
               ),

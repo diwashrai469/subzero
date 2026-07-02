@@ -56,7 +56,7 @@ class _SummaryCardState extends State<SummaryCard>
   }
 
   String get _currentMonthYear {
-    return DateFormat('MMM yyyy').format(DateTime.now());
+    return DateFormat('d MMM yyyy').format(DateTime.now());
   }
 
   Widget _animatedPill(Widget child) {
@@ -77,9 +77,9 @@ class _SummaryCardState extends State<SummaryCard>
       child: SlideTransition(
         position: _slide,
         child: Container(
-          padding: const EdgeInsets.all(16).dg,
+          padding: const EdgeInsets.all(18).dg,
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C1E),
+            color: const Color.fromARGB(255, 6, 47, 94),
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
