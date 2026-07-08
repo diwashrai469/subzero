@@ -78,7 +78,6 @@ Widget addSubTextField({
             style: TextStyle(
               fontSize: 14.5.sp,
               fontWeight: FontWeight.w700,
-              color: textPrimary,
             ),
             decoration: _inputDecoration(hint),
           ),

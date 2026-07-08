@@ -23,21 +23,21 @@ class DashboardHeader extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: .center,
       children: [
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: .start,
+            mainAxisAlignment: .center,
             children: [
               ClipRect(
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: .centerLeft,
                   heightFactor: 0.55.h,
                   child: Image.asset(
                     AppImage.appText,
                     width: 120.w,
-                    fit: BoxFit.contain,
+                    fit: .contain,
                   ),
                 ),
               ),
@@ -59,7 +59,7 @@ class DashboardHeader extends StatelessWidget {
           badgeCount: notificationCount,
         ),
 
-        SizedBox(width: 10.w),
+        sWidthSpan,
 
         GestureDetector(
           onTap: onProfileTap,
@@ -88,11 +88,11 @@ class _CircleIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: .none,
         children: [
           Container(
             width: 42.w,
-            height: 42.w,
+            height: 42.h,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -124,13 +124,13 @@ class _CircleIconButton extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  badgeCount > 99 ? '99+' : badgeCount.toString(),
-                  style: TextStyle(
+                child: Padding(
+                  padding: EdgeInsets.all(1.5.dg),
+                  child: KText(
+                    text: badgeCount > 99 ? '99+' : badgeCount.toString(),
                     color: Colors.white,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
-                    height: 1,
                   ),
                 ),
               ),
@@ -153,7 +153,7 @@ class _SmallProfileAvatar extends StatelessWidget {
 
     return Container(
       width: 44.w,
-      height: 44.w,
+      height: 44.h,
       decoration: BoxDecoration(
         color: primaryColor,
         shape: BoxShape.circle,
@@ -193,7 +193,7 @@ class LargeProfileAvatar extends StatelessWidget {
 
     return Container(
       width: 84.w,
-      height: 84.w,
+      height: 84.h,
       decoration: BoxDecoration(
         color: primaryColor,
         shape: BoxShape.circle,

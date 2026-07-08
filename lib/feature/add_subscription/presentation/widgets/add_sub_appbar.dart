@@ -9,7 +9,6 @@ PreferredSizeWidget addSubAppbar(
   bool isEditing,
   BuildContext context,
   Color bgColor,
-  Color textPrimary,
 ) {
   return AppBar(
     backgroundColor: bgColor,
@@ -26,9 +25,8 @@ PreferredSizeWidget addSubAppbar(
     ),
     title: KText(
       text: isEditing ? 'Edit Subscription' : 'Add Subscription',
-      isHeading: true,
       fontSize: 21.sp,
-      color: textPrimary,
+      fontWeight: FontWeight.bold,
       textAlign: TextAlign.center,
     ),
   );
@@ -42,8 +40,8 @@ Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
         onTap: onTap,
         borderRadius: BorderRadius.circular(100.r),
         child: Ink(
-          width: 40.r,
-          height: 40.r,
+          width: 40.w,
+          height: 40.h,
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
@@ -56,7 +54,7 @@ Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
               ),
             ],
           ),
-          child: Icon(icon, size: 20.sp, color: textPrimary),
+          child: Icon(icon, size: 20.sp),
         ),
       ),
     ),

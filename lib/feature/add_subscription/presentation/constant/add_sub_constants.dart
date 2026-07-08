@@ -5,7 +5,6 @@ import 'package:subzero/feature/add_subscription/model/subscription_category_mod
 const Color bgColor = Color(0xFFF6F7F9);
 const Color cardColor = Colors.white;
 const Color inputColor = Color(0xFFF9FAFB);
-const Color textPrimary = Color(0xFF111827);
 const Color textSecondary = Color(0xFF6B7280);
 const Color borderColor = Color(0xFFE5E7EB);
 

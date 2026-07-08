@@ -40,7 +40,8 @@ class DashboardCubit extends Cubit<DashboardState> {
         final subscriptions = snapshot.docs.map(_mapSubscription).toList();
         _process(subscriptions);
       },
-      onError: (_) {
+      onError: (error) {
+        debugPrint('Failed to listen to subscriptions: $error');
         emit(state.copyWith(loading: false));
       },
     );
@@ -66,7 +67,8 @@ class DashboardCubit extends Cubit<DashboardState> {
 
             emit(state.copyWith(notificationCount: unreadCount));
           },
-          onError: (_) {
+          onError: (error) {
+            debugPrint('Failed to listen to notification count: $error');
             emit(state.copyWith(notificationCount: 0));
           },
         );
@@ -131,7 +133,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       billingCycle: data['billingCycle'] ?? '',
       category: data['category'] ?? '',
       cancelUrl: data['cancelUrl'],
-
       lastReminderType: data['lastReminderType'],
       lastReminderId: data['lastReminderId'],
       lastReminderSentAt: _readNullableTimestamp(data['lastReminderSentAt']),
@@ -143,10 +144,10 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     final sortedSubscriptions = subscriptions.toList()
       ..sort((a, b) {
-        final aNextDate = _getUpcomingDate(a, today);
-        final bNextDate = _getUpcomingDate(b, today);
+        final aUpcomingDate = _getUpcomingDate(a, today);
+        final bUpcomingDate = _getUpcomingDate(b, today);
 
-        final dateCompare = aNextDate.compareTo(bNextDate);
+        final dateCompare = aUpcomingDate.compareTo(bUpcomingDate);
 
         if (dateCompare != 0) return dateCompare;
 
@@ -192,16 +193,101 @@ class DashboardCubit extends Cubit<DashboardState> {
     SubscriptionModel subscription,
     DateTime today,
   ) {
-    final nextDate = _dateOnly(subscription.nextBillDate);
+    final nextBillDate = _dateOnly(subscription.nextBillDate);
 
-    // Frontend workaround:
-    // If backend already moved nextBillDate to next cycle after today's reminder,
-    // still keep this subscription sorted as "today" until the day ends.
-    if (_wasTodayReminderSentToday(subscription, today)) {
+    /*
+      Important case:
+
+      Your backend may send today's reminder and then immediately move
+      nextBillDate to the next billing cycle.
+
+      Example:
+      Spotify was due today.
+      Backend sends today's reminder.
+      Backend changes nextBillDate to next month.
+
+      Without this check, the UI would instantly move Spotify away from today.
+      This keeps it sorted as "today" until the day ends.
+    */
+    if (_wasTodayReminderSentToday(subscription, today) &&
+        nextBillDate.isAfter(today)) {
       return today;
     }
 
-    return nextDate;
+    /*
+      Normal case:
+
+      If nextBillDate is today or in the future, use it directly.
+      Because we already removed the time, sorting is clean.
+    */
+    if (!nextBillDate.isBefore(today)) {
+      return nextBillDate;
+    }
+
+    /*
+      Safety case:
+
+      If nextBillDate is old/past, calculate the next real upcoming billing date
+      using the billing cycle.
+
+      This protects you if Firestore has outdated nextBillDate values.
+    */
+    DateTime calculatedDate = nextBillDate;
+
+    while (calculatedDate.isBefore(today)) {
+      calculatedDate = _addBillingCycle(
+        calculatedDate,
+        subscription.billingCycle,
+      );
+    }
+
+    return calculatedDate;
+  }
+
+  static DateTime _addBillingCycle(DateTime date, String billingCycle) {
+    final cycle = billingCycle.toLowerCase().trim();
+
+    if (cycle.contains('week')) {
+      return date.add(const Duration(days: 7));
+    }
+
+    if (cycle.contains('fortnight')) {
+      return date.add(const Duration(days: 14));
+    }
+
+    if (cycle.contains('month')) {
+      return _addMonths(date, 1);
+    }
+
+    if (cycle.contains('quarter')) {
+      return _addMonths(date, 3);
+    }
+
+    if (cycle.contains('semi')) {
+      return _addMonths(date, 6);
+    }
+
+    if (cycle.contains('year')) {
+      return _addMonths(date, 12);
+    }
+
+    return _addMonths(date, 1);
+  }
+
+  static DateTime _addMonths(DateTime date, int monthsToAdd) {
+    final targetMonthDate = DateTime(date.year, date.month + monthsToAdd, 1);
+
+    final lastDayOfTargetMonth = DateTime(
+      targetMonthDate.year,
+      targetMonthDate.month + 1,
+      0,
+    ).day;
+
+    final safeDay = date.day > lastDayOfTargetMonth
+        ? lastDayOfTargetMonth
+        : date.day;
+
+    return DateTime(targetMonthDate.year, targetMonthDate.month, safeDay);
   }
 
   static bool _wasTodayReminderSentToday(
@@ -228,14 +314,14 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   static DateTime _readTimestamp(dynamic value) {
     if (value is Timestamp) {
-      return value.toDate();
+      return _dateOnly(value.toDate());
     }
 
     if (value is DateTime) {
-      return value;
+      return _dateOnly(value);
     }
 
-    return DateTime.now();
+    return _dateOnly(DateTime.now());
   }
 
   static DateTime? _readNullableTimestamp(dynamic value) {
@@ -286,6 +372,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> close() async {
     await _subscriptionStream?.cancel();
     await _userStream?.cancel();
+
     return super.close();
   }
 }

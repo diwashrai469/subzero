@@ -13,6 +13,7 @@ const shadowColor = Color.fromRGBO(0, 0, 0, 0.04);
 const scaffoldBgColor = Color(0xFFF5F5F7);
 
 const disabledColor = Color(0xFFbcbcbc);
+const disabledSoftColor = Color(0x4DFFFFFF);
 const darkSucessColor = Color.fromARGB(255, 22, 101, 52);
 const darkErrorColor = Color(0xFFC11414);
 const cardColor = Color(0xFF2d3032);

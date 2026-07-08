@@ -120,7 +120,6 @@ class _Header extends StatelessWidget {
                 ),
                 KText(
                   text: 'Notifications',
-                  isHeading: true,
                   fontSize: 21.sp,
                   textAlign: TextAlign.center,
                 ),

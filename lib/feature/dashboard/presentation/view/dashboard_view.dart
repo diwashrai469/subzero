@@ -29,7 +29,7 @@ class DashboardView extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 10.h),
       sliver: SliverList.separated(
         itemCount: items.length,
-        separatorBuilder: (_, _) => SizedBox(height: 8.h),
+        separatorBuilder: (_, _) => sHeightSpan,
         itemBuilder: (context, index) {
           return SubRow(sub: items[index]);
         },
@@ -215,9 +215,8 @@ class DashboardView extends StatelessWidget {
               ],
             ),
             child: FloatingActionButton(
-              onPressed: () {
-                locator<AppRouters>().push(AddSubscriptionView());
-              },
+              onPressed: () =>
+                  locator<AppRouters>().push(AddSubscriptionView()),
               backgroundColor: primaryColor,
               elevation: 0,
               shape: const CircleBorder(),
@@ -288,7 +287,7 @@ class DashboardView extends StatelessWidget {
                           text: 'All SUBSCRIPTIONS',
                           textAlign: TextAlign.left,
                           fontSize: 14.sp,
-                          isHeading: true,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

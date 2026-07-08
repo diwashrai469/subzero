@@ -54,6 +54,8 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  Color editColor = const Color(0xFF4F46E5);
+
   String get _heroTag => 'subscription-hero-${widget.sub.id}';
 
   @override
@@ -85,29 +87,27 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                   AddSubscriptionView(existingSub: widget.sub),
                 ),
                 backgroundColor: const Color(0xFFEEF2FF),
-                foregroundColor: const Color(0xFF4F46E5),
+                foregroundColor: editColor,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(14.r),
                   bottomLeft: Radius.circular(14.r),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: .center,
                   children: [
                     Image.asset(
                       AppImage.editIcon,
-                      width: 20.r,
-                      height: 20.r,
+                      width: 20.w,
+                      height: 20.h,
                       fit: BoxFit.contain,
-                      color: Color(0xFF4F46E5),
+                      color: editColor,
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4F46E5),
-                      ),
+                    xsHeightSpan,
+                    KText(
+                      text: "Edit",
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: editColor,
                     ),
                   ],
                 ),
@@ -123,22 +123,20 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                   bottomLeft: Radius.circular(14.r),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: .center,
                   children: [
                     Image.asset(
                       AppImage.deleteIcon,
-                      width: 18.r,
-                      height: 18.r,
-                      fit: BoxFit.contain,
+                      width: 20.w,
+                      height: 20.h,
+                      fit: .contain,
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Delete',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        color: errorColor,
-                      ),
+                    xsHeightSpan,
+                    KText(
+                      text: "Delete",
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: errorColor,
                     ),
                   ],
                 ),
@@ -200,8 +198,8 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                       child: Material(
                         color: Colors.transparent,
                         child: Container(
-                          width: 44.r,
-                          height: 44.r,
+                          width: 44.w,
+                          height: 44.h,
                           decoration: BoxDecoration(
                             color: selectedCategory.iconColor.withValues(
                               alpha: 0.10,
@@ -227,7 +225,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: .start,
                         children: [
                           Row(
                             children: [
@@ -236,14 +234,13 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                                   text: widget.sub.name,
                                   fontSize: 13.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black,
-                                  textOverflow: TextOverflow.ellipsis,
+                                  textOverflow: .ellipsis,
                                 ),
                               ),
-                              SizedBox(width: 6.w),
+                              sWidthSpan,
                               Container(
                                 width: 6.w,
-                                height: 6.w,
+                                height: 6.h,
                                 decoration: BoxDecoration(
                                   color: isUrgent
                                       ? Colors.orange
@@ -259,29 +256,28 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                           KText(
                             text: 'Next: $dueText',
                             fontSize: 10.sp,
-                            color: Colors.grey,
+                            color: disabledColor,
                           ),
                         ],
                       ),
                     ),
 
-                    SizedBox(width: 10.w),
+                    sWidthSpan,
 
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: .end,
                       children: [
                         KText(
                           text:
                               '${widget.sub.currency}${widget.sub.amount.toStringAsFixed(2)}',
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black,
                         ),
                         xxsHeightSpan,
                         KText(
                           text: widget.sub.billingCycle,
                           fontSize: 10.sp,
-                          color: Colors.grey,
+                          color: disabledColor,
                         ),
                       ],
                     ),

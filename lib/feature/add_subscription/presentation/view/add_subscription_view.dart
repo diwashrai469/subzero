@@ -90,7 +90,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
         builder: (_, state) {
           return Scaffold(
             backgroundColor: bgColor,
-            appBar: addSubAppbar(isEditing, context, bgColor, textPrimary),
+            appBar: addSubAppbar(isEditing, context, bgColor),
             body: SafeArea(
               bottom: false,
               child: ListView(
@@ -193,12 +193,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          KText(
-            text: title,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.bold,
-            color: textPrimary,
-          ),
+          KText(text: title, fontSize: 17.sp, fontWeight: FontWeight.bold),
           SizedBox(height: 2.h),
           Text(
             subtitle,
@@ -223,11 +218,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
       child: Text(
         text,
         softWrap: true,
-        style: TextStyle(
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w800,
-          color: textPrimary,
-        ),
+        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800),
       ),
     );
   }
@@ -283,7 +274,6 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w800,
-                    color: textPrimary,
                   ),
                 ),
               ),

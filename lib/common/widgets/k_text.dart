@@ -9,7 +9,6 @@ class KText extends StatelessWidget {
   final double? fontSize;
   final TextAlign? textAlign;
   final bool isItalic;
-  final bool isHeading;
   final double? letterSpacing;
   final TextOverflow? textOverflow;
   final int? maxLines;
@@ -25,7 +24,6 @@ class KText extends StatelessWidget {
     this.textOverflow,
     this.isItalic = false,
     this.maxLines,
-    this.isHeading = false,
   });
 
   @override

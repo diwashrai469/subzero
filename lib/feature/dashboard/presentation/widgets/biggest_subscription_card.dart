@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 class BiggestSubscriptionCard extends StatelessWidget {
   final List<SubscriptionModel> subscriptions;
@@ -22,12 +25,11 @@ class BiggestSubscriptionCard extends StatelessWidget {
     final count = subscriptions.length;
     final hasMultiple = count > 1;
 
-    // Name line: "Netflix, Spotify +1 more"
     final shownNames = subscriptions.take(2).map((s) => s.name).join(', ');
     final nameText = count > 2 ? '$shownNames +${count - 2} more' : shownNames;
 
     return Container(
-      width: double.infinity,
+      width: .infinity,
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 6, 47, 94),
 
@@ -39,10 +41,10 @@ class BiggestSubscriptionCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(18.dg),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: .spaceBetween,
             children: [
               const _Label('BIGGEST COST'),
               _PercentagePill(percentage: percentage),
@@ -98,14 +100,12 @@ class _Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        color: Color(0x61FFFFFF),
-        letterSpacing: 0.9,
-      ),
+    return KText(
+      text: text,
+      fontSize: 11.sp,
+      color: disabledColor,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.8,
     );
   }
 }
@@ -117,22 +117,20 @@ class _PercentagePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5).dg,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(99),
+        borderRadius: BorderRadius.circular(99.r),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.10),
           width: 0.5,
         ),
       ),
-      child: Text(
-        '${percentage.toStringAsFixed(0)}% of spend',
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: Color(0x80FFFFFF),
-        ),
+      child: KText(
+        text: '${percentage.toStringAsFixed(0)}% of spend',
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w700,
+        color: disabledColor,
       ),
     );
   }
@@ -162,7 +160,7 @@ class _AmountBlock extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
-                  color: Color(0x80FFFFFF),
+                  color: disabledSoftColor,
                   height: 1.55,
                 ),
               ),
@@ -179,11 +177,8 @@ class _AmountBlock extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 3),
-        Text(
-          perMonthLabel,
-          style: TextStyle(fontSize: 11.sp, color: Color(0x4DFFFFFF)),
-        ),
+        xxsHeightSpan,
+        KText(text: perMonthLabel, fontSize: 11.sp, color: disabledSoftColor),
       ],
     );
   }

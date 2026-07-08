@@ -80,7 +80,6 @@ Widget addSubCategorySelector({
                       fontSize: 15.sp,
                       height: 1.2,
                       fontWeight: FontWeight.w800,
-                      color: textPrimary,
                     ),
                   ),
                   SizedBox(height: 4.h),

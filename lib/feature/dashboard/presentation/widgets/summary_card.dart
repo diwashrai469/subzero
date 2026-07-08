@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
+import 'package:subzero/theme/app_theme.dart';
 
 class SummaryCard extends StatefulWidget {
   final String label;
@@ -79,20 +80,19 @@ class _SummaryCardState extends State<SummaryCard>
         child: Container(
           padding: const EdgeInsets.all(18).dg,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 6, 47, 94),
+            color: primaryColor,
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
-              // ── TOP ROW ─────────────────────────
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: .spaceBetween,
                 children: [
                   KText(
                     text: widget.label.toUpperCase(),
                     fontSize: 11.sp,
-                    color: Colors.grey,
+                    color: disabledColor,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.8,
                   ),
@@ -106,13 +106,11 @@ class _SummaryCardState extends State<SummaryCard>
                       color: Colors.white.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(20.r),
                     ),
-                    child: Text(
-                      _currentMonthYear,
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: KText(
+                      text: _currentMonthYear,
+                      fontSize: 10.sp,
+                      color: disabledColor,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -120,7 +118,6 @@ class _SummaryCardState extends State<SummaryCard>
 
               sHeightSpan,
 
-              // ── MAIN VALUE (animated) ─────────────────────────
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0.9, end: 1),
                 duration: const Duration(milliseconds: 500),
@@ -156,7 +153,6 @@ class _SummaryCardState extends State<SummaryCard>
 
               sHeightSpan,
 
-              // ── BOTTOM PILLS ─────────────────────────
               Row(
                 children: [
                   _animatedPill(
@@ -170,16 +166,16 @@ class _SummaryCardState extends State<SummaryCard>
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: .min,
                         children: [
                           Icon(
                             Icons.credit_card,
                             color: Colors.white54,
                             size: 14.sp,
                           ),
-                          SizedBox(width: 8.w),
+                          sWidthSpan,
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: .start,
                             children: [
                               KText(
                                 text: 'Active',
@@ -212,16 +208,16 @@ class _SummaryCardState extends State<SummaryCard>
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: .min,
                         children: [
                           Icon(
                             Icons.trending_up,
                             color: Colors.white54,
                             size: 14.sp,
                           ),
-                          SizedBox(width: 8.w),
+                          sWidthSpan,
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: .start,
                             children: [
                               KText(
                                 text: 'Yearly',
