@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/theme/app_theme.dart';
 
-// ─────────────────────────────────────────────
-//  Custom Date Picker Dialog
-// ─────────────────────────────────────────────
 Future<DateTime?> showCustomDatePicker({
   required BuildContext context,
   DateTime? initialDate,
@@ -62,8 +60,6 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
   late Animation<double> _fadeAnimation;
   bool _slidingForward = true;
 
-  static const _accentColor = Color(0xFF6C63FF);
-  static const _accentLight = Color(0xFFE8E6FF);
   static const _textPrimary = Color(0xFF1A1A2E);
   static const _textSecondary = Color(0xFF8B8BA7);
   static const _white = Colors.white;
@@ -117,10 +113,8 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
   List<DateTime?> _buildCalendarDays() {
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
-    // Monday = 1 … Sunday = 7
     final startOffset = firstDay.weekday - 1;
-    final totalCells =
-        (startOffset + lastDay.day + 6) ~/ 7 * 7; // round up to full weeks
+    final totalCells = (startOffset + lastDay.day + 6) ~/ 7 * 7;
 
     return List.generate(totalCells, (i) {
       final dayIndex = i - startOffset + 1;
@@ -161,7 +155,7 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
           borderRadius: BorderRadius.circular(28.r),
           boxShadow: [
             BoxShadow(
-              color: _accentColor.withValues(alpha: 0.18),
+              color: primaryColor.withValues(alpha: 0.18),
               blurRadius: 48,
               spreadRadius: 0,
               offset: const Offset(0, 16),
@@ -180,9 +174,9 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
               _buildHeader(),
               _buildMonthNavigator(),
               _buildWeekDayRow(),
-              SizedBox(height: 4.h),
+              sHeightSpan,
               _buildCalendarGrid(days),
-              SizedBox(height: 12.h),
+              sHeightSpan,
               _buildFooter(),
             ],
           ),
@@ -198,7 +192,7 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
       padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 20.h),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF6C63FF), Color(0xFF3D35CC)],
+          colors: [primaryColor, secondaryColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -207,27 +201,22 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'SELECT DATE',
-            style: TextStyle(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: 0.75),
-              letterSpacing: 2.5,
-            ),
+          KText(
+            text: 'SELECT DATE',
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.white.withValues(alpha: 0.75),
+            letterSpacing: 2.5,
           ),
           sHeightSpan,
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                DateFormat('d').format(_selectedDate),
-                style: TextStyle(
-                  fontSize: 52.sp,
-                  fontWeight: FontWeight.w800,
-                  color: _white,
-                  height: 1,
-                ),
+              KText(
+                text: DateFormat('d').format(_selectedDate),
+                fontSize: 52.sp,
+                fontWeight: FontWeight.w800,
+                color: _white,
               ),
               sWidthSpan,
               Padding(
@@ -235,21 +224,18 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      DateFormat('EEEE').format(_selectedDate),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
+                    KText(
+                      text: DateFormat('EEEE').format(_selectedDate),
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withValues(alpha: 0.85),
                     ),
-                    Text(
-                      DateFormat('MMMM yyyy').format(_selectedDate),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: _white,
-                      ),
+
+                    KText(
+                      text: DateFormat('MMMM yyyy').format(_selectedDate),
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      color: _white,
                     ),
                   ],
                 ),
@@ -272,15 +258,14 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
             icon: Icons.chevron_left_rounded,
             onTap: () => _changeMonth(-1),
           ),
-          Text(
-            DateFormat('MMMM  yyyy').format(_focusedMonth),
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
-              color: _textPrimary,
-              letterSpacing: 0.3,
-            ),
+          KText(
+            text: DateFormat('MMMM  yyyy').format(_focusedMonth),
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            color: _textPrimary,
+            letterSpacing: 0.3,
           ),
+
           _NavButton(
             icon: Icons.chevron_right_rounded,
             onTap: () => _changeMonth(1),
@@ -301,16 +286,14 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
               (d) => SizedBox(
                 width: 32.w,
                 child: Center(
-                  child: Text(
-                    d,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                      color: d == 'Sa' || d == 'Su'
-                          ? _accentColor.withValues(alpha: 0.55)
-                          : _textSecondary,
-                      letterSpacing: 0.5,
-                    ),
+                  child: KText(
+                    text: d,
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: d == 'Sa' || d == 'Su'
+                        ? primaryColor.withValues(alpha: 0.55)
+                        : _textSecondary,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
@@ -356,15 +339,15 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
         margin: EdgeInsets.all(2.r),
         decoration: BoxDecoration(
           color: selected
-              ? _accentColor
+              ? secondaryColor
               : today
-              ? _accentLight
+              ? primaryColor
               : Colors.transparent,
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: _accentColor.withValues(alpha: 0.38),
+                    color: primaryColor.withValues(alpha: 0.38),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -372,19 +355,17 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
               : null,
         ),
         child: Center(
-          child: Text(
-            date != null ? '${date.day}' : '',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: selected || today ? FontWeight.w700 : FontWeight.w400,
-              color: selected
-                  ? _white
-                  : today
-                  ? _accentColor
-                  : disabled
-                  ? _textSecondary.withValues(alpha: 0.35)
-                  : _textPrimary,
-            ),
+          child: KText(
+            text: date != null ? '${date.day}' : '',
+            fontSize: 13.sp,
+            fontWeight: selected || today ? FontWeight.w700 : FontWeight.w400,
+            color: selected
+                ? _white
+                : today
+                ? secondaryColor
+                : disabled
+                ? _textSecondary.withValues(alpha: 0.35)
+                : _textPrimary,
           ),
         ),
       ),
@@ -407,13 +388,11 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
                   side: BorderSide(color: const Color(0xFFE2E0F0), width: 1.5),
                 ),
               ),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: _textSecondary,
-                ),
+              child: KText(
+                text: 'Cancel',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: _textSecondary,
               ),
             ),
           ),
@@ -426,11 +405,7 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(vertical: 13.h),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF3D35CC)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: primaryColor,
                   borderRadius: BorderRadius.circular(14.r),
                   boxShadow: [
                     BoxShadow(
@@ -441,14 +416,12 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
                   ],
                 ),
                 child: Center(
-                  child: Text(
-                    'Confirm',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: _white,
-                      letterSpacing: 0.3,
-                    ),
+                  child: KText(
+                    text: 'Confirm',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: _white,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),

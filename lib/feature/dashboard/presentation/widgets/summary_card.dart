@@ -78,16 +78,16 @@ class _SummaryCardState extends State<SummaryCard>
       child: SlideTransition(
         position: _slide,
         child: Container(
-          padding: const EdgeInsets.all(18).dg,
+          padding: EdgeInsets.all(18.dg),
           decoration: BoxDecoration(
             color: primaryColor,
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: .spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   KText(
                     text: widget.label.toUpperCase(),
@@ -96,7 +96,6 @@ class _SummaryCardState extends State<SummaryCard>
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.8,
                   ),
-
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 10.w,
@@ -129,7 +128,7 @@ class _SummaryCardState extends State<SummaryCard>
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: widget.currencySymbol,
+                            text: widget.currencySymbol ?? '',
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w500,
@@ -157,16 +156,16 @@ class _SummaryCardState extends State<SummaryCard>
                 children: [
                   _animatedPill(
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ).dg,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Row(
-                        mainAxisSize: .min,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.credit_card,
@@ -175,7 +174,7 @@ class _SummaryCardState extends State<SummaryCard>
                           ),
                           sWidthSpan,
                           Column(
-                            crossAxisAlignment: .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               KText(
                                 text: 'Active',
@@ -199,16 +198,16 @@ class _SummaryCardState extends State<SummaryCard>
 
                   _animatedPill(
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ).dg,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Row(
-                        mainAxisSize: .min,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.trending_up,
@@ -217,7 +216,7 @@ class _SummaryCardState extends State<SummaryCard>
                           ),
                           sWidthSpan,
                           Column(
-                            crossAxisAlignment: .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               KText(
                                 text: 'Yearly',

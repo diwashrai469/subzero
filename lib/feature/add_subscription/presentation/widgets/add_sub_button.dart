@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
 import 'package:subzero/theme/app_theme.dart';
@@ -27,7 +29,7 @@ Widget saveButton({
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         width: double.infinity,
-        height: 57.h,
+        height: 53.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18.r),
           color: primaryColor,
@@ -58,14 +60,11 @@ Widget saveButton({
                         ),
                       ),
                     ),
-                    SizedBox(width: 11.w),
-                    Text(
-                      isEditing ? 'Updating...' : 'Saving...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    sWidthSpan,
+                    KText(
+                      text: isEditing ? 'Updating...' : 'Saving...',
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w900,
                     ),
                   ],
                 )
@@ -80,17 +79,16 @@ Widget saveButton({
                       color: Colors.white,
                       size: 20.sp,
                     ),
-                    SizedBox(width: 9.w),
+                    sWidthSpan,
                     Flexible(
-                      child: Text(
-                        isEditing ? 'Update Subscription' : 'Save Subscription',
+                      child: KText(
+                        text: isEditing
+                            ? 'Update Subscription'
+                            : 'Save Subscription',
                         textAlign: TextAlign.center,
-                        softWrap: true,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w900,
-                        ),
+                        color: Colors.white,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],

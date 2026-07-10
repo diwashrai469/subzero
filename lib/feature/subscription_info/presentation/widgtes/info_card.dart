@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 
 /// A card that renders a vertical list of [InfoRow]s with dividers between them.
 class InfoCard extends StatelessWidget {
@@ -59,16 +61,14 @@ class InfoRow extends StatelessWidget {
       child: Row(
         children: [
           _IconBox(icon: icon),
-          SizedBox(width: 12.w),
-          Text(label),
+          sWidthSpan,
+          KText(text: label),
           const Spacer(),
           trailing ??
-              Text(
-                value ?? '',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: valueColor ?? Colors.black,
-                ),
+              KText(
+                text: value ?? '',
+                fontWeight: FontWeight.w600,
+                color: valueColor ?? Colors.black,
               ),
         ],
       ),

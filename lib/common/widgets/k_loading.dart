@@ -58,7 +58,7 @@ class _CustomLoadingState extends State<CustomLoading>
     final Color thirdRingColor = widget.thirdCircleColor;
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (_, __) {
+      builder: (_, _) {
         return Stack(
           children: <Widget>[
             Transform.rotate(
@@ -66,11 +66,7 @@ class _CustomLoadingState extends State<CustomLoading>
                   .animate(
                     CurvedAnimation(
                       parent: _animationController,
-                      curve: const Interval(
-                        0.68,
-                        0.95,
-                        curve: Curves.easeOut,
-                      ),
+                      curve: const Interval(0.68, 0.95, curve: Curves.easeOut),
                     ),
                   )
                   .value,
@@ -81,21 +77,22 @@ class _CustomLoadingState extends State<CustomLoading>
                   size: size,
                   strokeWidth: strokeWidth,
                   startAngle: -math.pi / 2,
-                  endAngle: Tween<double>(
-                    begin: math.pi / 2,
-                    end: math.pi / (size * size),
-                  )
-                      .animate(
-                        CurvedAnimation(
-                          parent: _animationController,
-                          curve: const Interval(
-                            0.7,
-                            0.95,
-                            curve: Curves.easeOutSine,
-                          ),
-                        ),
-                      )
-                      .value,
+                  endAngle:
+                      Tween<double>(
+                            begin: math.pi / 2,
+                            end: math.pi / (size * size),
+                          )
+                          .animate(
+                            CurvedAnimation(
+                              parent: _animationController,
+                              curve: const Interval(
+                                0.7,
+                                0.95,
+                                curve: Curves.easeOutSine,
+                              ),
+                            ),
+                          )
+                          .value,
                 ),
               ),
             ),
@@ -106,22 +103,23 @@ class _CustomLoadingState extends State<CustomLoading>
                 size: size,
                 strokeWidth: strokeWidth,
                 startAngle: -math.pi / 2,
-                endAngle: Tween<double>(
-                  begin: -2 * math.pi,
-                  end: math.pi / (size * size),
-                )
-                    .animate(
-                      CurvedAnimation(
-                        parent: _animationController,
-                        curve: const Interval(
-                          0.6,
-                          0.95,
-                          // curve: Curves.easeIn,
-                          curve: Curves.easeOutSine,
-                        ),
-                      ),
-                    )
-                    .value,
+                endAngle:
+                    Tween<double>(
+                          begin: -2 * math.pi,
+                          end: math.pi / (size * size),
+                        )
+                        .animate(
+                          CurvedAnimation(
+                            parent: _animationController,
+                            curve: const Interval(
+                              0.6,
+                              0.95,
+                              // curve: Curves.easeIn,
+                              curve: Curves.easeOutSine,
+                            ),
+                          ),
+                        )
+                        .value,
               ),
             ),
             Visibility(
@@ -132,10 +130,7 @@ class _CustomLoadingState extends State<CustomLoading>
                     .animate(
                       CurvedAnimation(
                         parent: _animationController,
-                        curve: const Interval(
-                          0.48,
-                          0.5,
-                        ),
+                        curve: const Interval(0.48, 0.5),
                       ),
                     )
                     .value,
@@ -145,19 +140,22 @@ class _CustomLoadingState extends State<CustomLoading>
                   strokeWidth: strokeWidth,
                   startAngle: -math.pi / 2,
                   // endAngle: 1.94 * math.pi,
-                  endAngle: Tween<double>(
-                          begin: math.pi / (size * size), end: 1.94 * math.pi)
-                      .animate(
-                        CurvedAnimation(
-                          parent: _animationController,
-                          curve: const Interval(
-                            0.05,
-                            0.48,
-                            curve: Curves.easeOutSine,
-                          ),
-                        ),
-                      )
-                      .value,
+                  endAngle:
+                      Tween<double>(
+                            begin: math.pi / (size * size),
+                            end: 1.94 * math.pi,
+                          )
+                          .animate(
+                            CurvedAnimation(
+                              parent: _animationController,
+                              curve: const Interval(
+                                0.05,
+                                0.48,
+                                curve: Curves.easeOutSine,
+                              ),
+                            ),
+                          )
+                          .value,
                 ),
               ),
             ),
@@ -169,22 +167,23 @@ class _CustomLoadingState extends State<CustomLoading>
                 strokeWidth: strokeWidth,
                 startAngle: -math.pi / 2,
                 // endAngle: -1.94 * math.pi
-                endAngle: Tween<double>(
-                  // begin: -2 * math.pi,
-                  begin: -1.94 * math.pi,
-                  end: math.pi / (size * size),
-                )
-                    .animate(
-                      CurvedAnimation(
-                        parent: _animationController,
-                        curve: const Interval(
-                          0.5,
-                          0.95,
-                          curve: Curves.easeOutSine,
-                        ),
-                      ),
-                    )
-                    .value,
+                endAngle:
+                    Tween<double>(
+                          // begin: -2 * math.pi,
+                          begin: -1.94 * math.pi,
+                          end: math.pi / (size * size),
+                        )
+                        .animate(
+                          CurvedAnimation(
+                            parent: _animationController,
+                            curve: const Interval(
+                              0.5,
+                              0.95,
+                              curve: Curves.easeOutSine,
+                            ),
+                          ),
+                        )
+                        .value,
               ),
             ),
           ],
@@ -206,12 +205,7 @@ class Arc extends CustomPainter {
   final double _sweepAngle;
   final double _startAngle;
 
-  Arc._(
-    this._color,
-    this._strokeWidth,
-    this._startAngle,
-    this._sweepAngle,
-  );
+  Arc._(this._color, this._strokeWidth, this._startAngle, this._sweepAngle);
 
   static Widget draw({
     required Color color,
@@ -219,19 +213,13 @@ class Arc extends CustomPainter {
     required double strokeWidth,
     required double startAngle,
     required double endAngle,
-  }) =>
-      SizedBox(
-        width: size,
-        height: size,
-        child: CustomPaint(
-          painter: Arc._(
-            color,
-            strokeWidth,
-            startAngle,
-            endAngle,
-          ),
-        ),
-      );
+  }) => SizedBox(
+    width: size,
+    height: size,
+    child: CustomPaint(
+      painter: Arc._(color, strokeWidth, startAngle, endAngle),
+    ),
+  );
 
   @override
   void paint(Canvas canvas, Size size) {

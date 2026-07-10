@@ -93,7 +93,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                   bottomLeft: Radius.circular(14.r),
                 ),
                 child: Column(
-                  mainAxisAlignment: .center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
                       AppImage.editIcon,
@@ -115,7 +115,6 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
               CustomSlidableAction(
                 onPressed: (_) =>
                     deleteSubDialog(context: context, sub: widget.sub),
-
                 backgroundColor: const Color(0xFFFFEBEE),
                 foregroundColor: errorColor,
                 borderRadius: BorderRadius.only(
@@ -123,13 +122,13 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                   bottomLeft: Radius.circular(14.r),
                 ),
                 child: Column(
-                  mainAxisAlignment: .center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
                       AppImage.deleteIcon,
                       width: 20.w,
                       height: 20.h,
-                      fit: .contain,
+                      fit: BoxFit.contain,
                     ),
                     xsHeightSpan,
                     KText(
@@ -143,14 +142,12 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => locator<AppRouters>().push(
                 SubscriptionInfoView(sub: widget.sub),
               ),
-
               borderRadius: BorderRadius.circular(14.r),
               child: Ink(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
@@ -225,7 +222,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
@@ -234,7 +231,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                                   text: widget.sub.name,
                                   fontSize: 13.sp,
                                   fontWeight: FontWeight.w700,
-                                  textOverflow: .ellipsis,
+                                  textOverflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               sWidthSpan,
@@ -265,7 +262,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                     sWidthSpan,
 
                     Column(
-                      crossAxisAlignment: .end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         KText(
                           text:

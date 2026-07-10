@@ -33,6 +33,7 @@ class KText extends StatelessWidget {
       textAlign: textAlign ?? TextAlign.center,
       overflow: textOverflow,
       maxLines: maxLines,
+      softWrap: true,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: color ?? Colors.black,
         fontSize: fontSize ?? 12.sp,

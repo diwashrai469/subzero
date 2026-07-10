@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/app_image.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
@@ -71,7 +72,7 @@ class _SubscriptionInfoBody extends StatelessWidget {
                 child: Image.asset(AppImage.deleteIcon),
               ),
 
-              SizedBox(width: 10.w),
+              sWidthSpan,
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: HeroHeader(
@@ -96,10 +97,10 @@ class _SubscriptionInfoBody extends StatelessWidget {
                     yearly: state.yearlyEquivalent,
                   ),
 
-                  SizedBox(height: 22.h),
+                  lHeightSpan,
 
                   const SectionLabel(label: 'Billing Details'),
-                  SizedBox(height: 10.h),
+                  sHeightSpan,
                   InfoCard(
                     rows: [
                       InfoRow(
@@ -121,10 +122,10 @@ class _SubscriptionInfoBody extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 22.h),
+                  lHeightSpan,
 
                   const SectionLabel(label: 'Subscription Info'),
-                  SizedBox(height: 10.h),
+                  sHeightSpan,
                   InfoCard(
                     rows: [
                       InfoRow(

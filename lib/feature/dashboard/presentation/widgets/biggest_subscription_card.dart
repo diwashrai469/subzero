@@ -29,10 +29,9 @@ class BiggestSubscriptionCard extends StatelessWidget {
     final nameText = count > 2 ? '$shownNames +${count - 2} more' : shownNames;
 
     return Container(
-      width: .infinity,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 6, 47, 94),
-
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
@@ -41,18 +40,16 @@ class BiggestSubscriptionCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(18.dg),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: .spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const _Label('BIGGEST COST'),
               _PercentagePill(percentage: percentage),
             ],
           ),
-
           const SizedBox(height: 16),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -71,7 +68,6 @@ class BiggestSubscriptionCard extends StatelessWidget {
                         height: 1.2,
                       ),
                     ),
-
                     const SizedBox(height: 4),
                     const Text(
                       'Your highest subscription',
@@ -117,7 +113,7 @@ class _PercentagePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5).dg,
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.5.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(99.r),

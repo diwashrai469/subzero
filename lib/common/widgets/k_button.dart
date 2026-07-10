@@ -134,10 +134,10 @@ class KButton extends StatelessWidget {
               ) {
                 if (states.contains(WidgetState.pressed)) {
                   return (backgroundColor ?? Theme.of(context).primaryColor)
-                      .withOpacity(0.5);
+                      .withValues(alpha: 0.5);
                 } else if (states.contains(WidgetState.disabled)) {
                   return (backgroundColor ?? Theme.of(context).primaryColor)
-                      .withOpacity(0.5);
+                      .withValues(alpha: 0.5);
                 } else {
                   return (backgroundColor ?? Theme.of(context).primaryColor);
                 }

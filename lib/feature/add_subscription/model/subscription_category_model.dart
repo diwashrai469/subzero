@@ -1,4 +1,3 @@
-// ── Category model ─────────────────────────────────────────────
 import 'dart:ui';
 
 class SubscriptionCategoryModel {

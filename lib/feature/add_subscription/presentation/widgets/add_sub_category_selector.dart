@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
@@ -67,37 +69,29 @@ Widget addSubCategorySelector({
               ),
             ),
 
-            SizedBox(width: 13.w),
+            mWidthSpan,
 
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    selectedCategory.label,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      height: 1.2,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  KText(
+                    text: selectedCategory.label,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w800,
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'Tap to choose another category',
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      height: 1.25,
-                      fontWeight: FontWeight.w500,
-                      color: textSecondary,
-                    ),
+                  xsHeightSpan,
+                  KText(
+                    text: 'Tap to choose another category',
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                    color: textSecondary,
                   ),
                 ],
               ),
             ),
 
-            SizedBox(width: 10.w),
+            sWidthSpan,
 
             Container(
               width: 32.r,

@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_glyph.dart';
 
@@ -38,17 +40,15 @@ class GlassLoginPanel extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                AuthCopy.continueWith,
-                style: TextStyle(
-                  fontSize: 12.5.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                  color: AuthPalette.textTertiary,
-                ),
+              KText(
+                text: AuthCopy.continueWith,
+                fontSize: 12.5.sp,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.1,
+                color: AuthPalette.textTertiary,
               ),
 
-              SizedBox(height: 16.h),
+              mHeightSpan,
               AuthButton(
                 label: AuthCopy.continueWithGoogle,
                 icon: GoogleGlyph(size: 18.w),
@@ -59,7 +59,7 @@ class GlassLoginPanel extends StatelessWidget {
                 onTap: onGooglePressed,
               ),
 
-              SizedBox(height: 12.h),
+              mHeightSpan,
               AuthButton(
                 label: AuthCopy.continueWithApple,
                 icon: AppleGlyph(size: 18.w),

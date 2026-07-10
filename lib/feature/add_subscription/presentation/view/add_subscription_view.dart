@@ -113,14 +113,14 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                         compact: true,
                       ),
 
-                      SizedBox(height: 14.h),
+                      mHeightSpan,
 
                       _fieldLabel('Amount'),
                       _amountRow(state),
                     ],
                   ),
 
-                  SizedBox(height: 16.h),
+                  mHeightSpan,
 
                   _sectionCard(
                     title: 'Billing schedule',
@@ -132,14 +132,14 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                         onDateSelected: cubit.setDate,
                       ),
 
-                      SizedBox(height: 14.h),
+                      mHeightSpan,
 
                       _fieldLabel('Billing cycle'),
                       addSubCycleSelector(state: state, cubit: cubit),
                     ],
                   ),
 
-                  SizedBox(height: 16.h),
+                  mHeightSpan,
 
                   _sectionCard(
                     title: 'Category',
@@ -194,18 +194,15 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           KText(text: title, fontSize: 17.sp, fontWeight: FontWeight.bold),
-          SizedBox(height: 2.h),
-          Text(
-            subtitle,
-            softWrap: true,
-            style: TextStyle(
-              fontSize: 12.5.sp,
-              height: 1.35,
-              fontWeight: FontWeight.w500,
-              color: textSecondary,
-            ),
+          xxsHeightSpan,
+          KText(
+            text: subtitle,
+            fontSize: 12.5.sp,
+            fontWeight: FontWeight.w500,
+            color: textSecondary,
           ),
-          SizedBox(height: 14.h),
+
+          mHeightSpan,
           ...children,
         ],
       ),
@@ -215,11 +212,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
   Widget _fieldLabel(String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(
-        text,
-        softWrap: true,
-        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w800),
-      ),
+      child: KText(text: text, fontSize: 13.sp, fontWeight: FontWeight.w800),
     );
   }
 
@@ -239,7 +232,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
             compact: true,
           ),
         ),
-        SizedBox(width: 10.w),
+        sWidthSpan,
         Expanded(flex: 4, child: _currencyButton(state)),
       ],
     );
@@ -264,20 +257,17 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(flag, style: TextStyle(fontSize: 15.sp)),
-              SizedBox(width: 5.w),
+              KText(text: flag, fontSize: 15.sp),
+              sWidthSpan,
               Flexible(
-                child: Text(
-                  state.currency,
+                child: KText(
+                  text: state.currency,
                   textAlign: TextAlign.center,
-                  softWrap: true,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(width: 2.w),
+              xsWidthSpan,
               Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 18.sp,

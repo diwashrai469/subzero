@@ -52,7 +52,7 @@ class DashboardView extends StatelessWidget {
             borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
           ),
           child: Column(
-            mainAxisSize: .min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 42.w,
@@ -75,7 +75,7 @@ class DashboardView extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
                 letterSpacing: -0.4,
-                textAlign: .center,
+                textAlign: TextAlign.center,
               ),
 
               xsHeightSpan,
@@ -84,13 +84,13 @@ class DashboardView extends StatelessWidget {
                 text: user?.email ?? 'No email available',
                 fontSize: 13.sp,
                 color: Colors.grey.shade500,
-                textAlign: .center,
+                textAlign: TextAlign.center,
               ),
 
               lHeightSpan,
 
               Container(
-                width: .infinity,
+                width: double.infinity,
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F7),
@@ -111,10 +111,12 @@ class DashboardView extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    mHeightSpan,
+
+                    mWidthSpan,
+
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           KText(
                             text: signedInText(user),
@@ -143,14 +145,14 @@ class DashboardView extends StatelessWidget {
                   await logout(context);
                 },
                 child: Container(
-                  width: .infinity,
+                  width: double.infinity,
                   height: 52.h,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFEFEF),
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   child: Row(
-                    mainAxisAlignment: .center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.logout_rounded,
@@ -240,21 +242,22 @@ class DashboardView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(16.dg),
                         child: Column(
-                          crossAxisAlignment: .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             sHeightSpan,
                             DashboardHeader(
                               notificationCount: state.notificationCount,
                               onProfileTap: () => _showProfileSheet(context),
                               onNotificationTap: () async {
-                                if (context.mounted) {
-                                  locator<AppRouters>().push(
-                                    const NotificationView(),
-                                  );
-                                  await context
-                                      .read<DashboardCubit>()
-                                      .markAllNotificationsAsSeen();
-                                }
+                                locator<AppRouters>().push(
+                                  const NotificationView(),
+                                );
+
+                                if (!context.mounted) return;
+
+                                await context
+                                    .read<DashboardCubit>()
+                                    .markAllNotificationsAsSeen();
                               },
                             ),
 

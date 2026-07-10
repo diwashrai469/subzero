@@ -8,7 +8,7 @@ Widget emptyState() {
   return SliverFillRemaining(
     hasScrollBody: false,
     child: Column(
-      mainAxisAlignment: .start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         lHeightSpan,
         Container(

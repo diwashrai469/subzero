@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 
 class CostBreakdownCard extends StatelessWidget {
   final String currency;
@@ -75,18 +77,13 @@ class _CostCell extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 14.h),
       child: Column(
         children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 10.sp, color: Colors.grey),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              color: highlight ? const Color(0xFF6366F1) : Colors.black,
-            ),
+          KText(text: label, fontSize: 10.sp, color: Colors.grey),
+          sHeightSpan,
+          KText(
+            text: value,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+            color: highlight ? const Color(0xFF6366F1) : Colors.black,
           ),
         ],
       ),

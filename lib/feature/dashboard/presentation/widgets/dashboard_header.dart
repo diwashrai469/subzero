@@ -23,21 +23,21 @@ class DashboardHeader extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Row(
-      crossAxisAlignment: .center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
-            crossAxisAlignment: .start,
-            mainAxisAlignment: .center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ClipRect(
                 child: Align(
-                  alignment: .centerLeft,
+                  alignment: Alignment.centerLeft,
                   heightFactor: 0.55.h,
                   child: Image.asset(
                     AppImage.appText,
                     width: 120.w,
-                    fit: .contain,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -88,7 +88,7 @@ class _CircleIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        clipBehavior: .none,
+        clipBehavior: Clip.none,
         children: [
           Container(
             width: 42.w,

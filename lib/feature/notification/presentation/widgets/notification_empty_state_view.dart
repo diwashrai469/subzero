@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/notification/presentation/constant/notification_constant.dart';
 
@@ -14,8 +15,7 @@ class NotificationEmptyStateView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const _EmptyIcon(),
-
-          SizedBox(height: 26.h),
+          lHeightSpan,
 
           KText(
             text: 'You’re all caught up',
@@ -26,7 +26,7 @@ class NotificationEmptyStateView extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
 
-          SizedBox(height: 10.h),
+          mHeightSpan,
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),

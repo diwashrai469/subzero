@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
 import 'package:subzero/feature/dashboard/presentation/widgets/subscription_category.dart';
 import 'package:subzero/theme/app_theme.dart';
@@ -72,21 +74,19 @@ class HeroHeader extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 16.h),
+            mHeightSpan,
 
-            Text(
-              sub.name,
+            KText(
+              text: sub.name,
               textAlign: TextAlign.center,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF6B7280),
-              ),
+              textOverflow: TextOverflow.ellipsis,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF6B7280),
             ),
 
-            SizedBox(height: 6.h),
+            xsHeightSpan,
 
             RichText(
               textAlign: TextAlign.center,
@@ -113,7 +113,7 @@ class HeroHeader extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 14.h),
+            mHeightSpan,
 
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
@@ -129,14 +129,12 @@ class HeroHeader extends StatelessWidget {
                     size: 15.sp,
                     color: const Color(0xFFB45309),
                   ),
-                  SizedBox(width: 7.w),
-                  Text(
-                    billingText,
-                    style: TextStyle(
-                      fontSize: 12.5.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFB45309),
-                    ),
+                  sWidthSpan,
+                  KText(
+                    text: billingText,
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFB45309),
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
 
 import 'app_icon_mark.dart';
@@ -20,15 +21,12 @@ class AuthBrandHeader extends StatelessWidget {
         children: [
           const AppIconMark(),
           SizedBox(height: compact ? 22.h : 26.h),
-          Text(
-            AuthCopy.appName,
-            style: TextStyle(
-              fontSize: compact ? 30.sp : 28.sp,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-              color: AuthPalette.textPrimary,
-              height: 1.1,
-            ),
+          KText(
+            text: AuthCopy.appName,
+            fontSize: compact ? 30.sp : 28.sp,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+            color: AuthPalette.textPrimary,
           ),
           SizedBox(height: compact ? 10.h : 8.h),
           Text(

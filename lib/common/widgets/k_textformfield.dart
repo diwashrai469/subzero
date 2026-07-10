@@ -56,10 +56,10 @@ class KTextFormField extends StatefulWidget {
   });
 
   @override
-  _KTextFormFieldState createState() => _KTextFormFieldState();
+  KTextFormFieldState createState() => KTextFormFieldState();
 }
 
-class _KTextFormFieldState extends State<KTextFormField> {
+class KTextFormFieldState extends State<KTextFormField> {
   late bool obscureText;
 
   @override
@@ -84,8 +84,8 @@ class _KTextFormFieldState extends State<KTextFormField> {
                       TextSpan(
                         text: widget.label,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          fontWeight: FontWeight.w600,
+                        ),
                         children: <InlineSpan>[
                           if (widget.required == true)
                             const TextSpan(
@@ -114,20 +114,21 @@ class _KTextFormFieldState extends State<KTextFormField> {
           focusNode: widget.focusNode,
           initialValue: widget.initialValue,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: (widget.initialValue?.isEmpty == true ||
-                      widget.initialValue == null)
-                  ? null
-                  : Colors.grey),
+            color:
+                (widget.initialValue?.isEmpty == true ||
+                    widget.initialValue == null)
+                ? null
+                : Colors.grey,
+          ),
           maxLines: widget.maxLines,
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hint,
             filled: true,
             fillColor: Colors.white,
-            hintStyle: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.grey),
+            hintStyle: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.obscureText
                 ? IconButton(
@@ -147,8 +148,9 @@ class _KTextFormFieldState extends State<KTextFormField> {
               fontSize: AppDimens.headlineFontSizeXXXSmall,
             ),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5.r),
-                borderSide: const BorderSide(color: primaryColor)),
+              borderRadius: BorderRadius.circular(5.r),
+              borderSide: const BorderSide(color: primaryColor),
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5.r),
             ),
@@ -158,15 +160,11 @@ class _KTextFormFieldState extends State<KTextFormField> {
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5.r),
-              borderSide: const BorderSide(
-                color: darkGrey,
-              ),
+              borderSide: const BorderSide(color: darkGrey),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5.r),
-              borderSide: const BorderSide(
-                color: errorColor,
-              ),
+              borderSide: const BorderSide(color: errorColor),
             ),
           ),
           validator: widget.validator,

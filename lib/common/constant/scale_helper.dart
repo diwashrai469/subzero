@@ -3,13 +3,9 @@ import 'package:flutter/widgets.dart';
 class ScaleHelper {
   final BuildContext context;
 
-  ScaleHelper(
-    this.context,
-  );
+  ScaleHelper(this.context);
 
-  double getVariableWidth(
-    double width,
-  ) {
+  double getVariableWidth(double width) {
     double size;
 
     size = width * MediaQuery.of(context).size.width / 360;
@@ -31,8 +27,10 @@ class ScaleHelper {
 
   bool get isPhone => MediaQuery.of(context).size.shortestSide < 550;
 
-  getVariableWidthRelativeToViewPortionWidth(
-      double width, double viewPortionWidth) {
+  double getVariableWidthRelativeToViewPortionWidth(
+    double width,
+    double viewPortionWidth,
+  ) {
     double size;
 
     size = width * MediaQuery.of(context).size.width / viewPortionWidth;

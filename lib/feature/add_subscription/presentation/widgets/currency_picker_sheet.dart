@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/currency_data.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
+import 'package:subzero/core/app_routers/app_routers.dart';
+import 'package:subzero/core/injection/injection_service.dart';
 
 class CurrencyPickerSheet extends StatefulWidget {
   final String selected;
@@ -92,13 +96,11 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Select Currency',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+                  KText(
+                    text: 'Select Currency',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -121,7 +123,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               ),
             ),
 
-            SizedBox(height: 14.h),
+            mHeightSpan,
 
             // ── Search bar ──────────────────────
             Padding(
@@ -173,12 +175,10 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  '${_filtered.length} currencies',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: Colors.grey.shade400,
-                  ),
+                child: KText(
+                  text: '${_filtered.length} currencies',
+                  fontSize: 11.sp,
+                  color: Colors.grey.shade400,
                 ),
               ),
             ),
@@ -196,13 +196,11 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                             size: 36.sp,
                             color: Colors.grey.shade300,
                           ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            'No currencies found',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              color: Colors.grey.shade400,
-                            ),
+                          mHeightSpan,
+                          KText(
+                            text: 'No currencies found',
+                            fontSize: 13.sp,
+                            color: Colors.grey.shade400,
                           ),
                         ],
                       ),
@@ -219,7 +217,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                         return GestureDetector(
                           onTap: () {
                             widget.onSelected(code);
-                            Navigator.pop(context);
+                            locator<AppRouters>().popForced();
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 150),
@@ -236,35 +234,28 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                             ),
                             child: Row(
                               children: [
-                                Text(
-                                  d['flag']!,
-                                  style: TextStyle(fontSize: 22.sp),
-                                ),
-                                SizedBox(width: 12.w),
+                                KText(text: d['flag']!, fontSize: 22.sp),
+                                mWidthSpan,
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        d['name']!,
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
+                                      KText(
+                                        text: d['name']!,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.black87,
                                       ),
-                                      SizedBox(height: 2.h),
-                                      Text(
-                                        '${d['country']} · $code',
-                                        style: TextStyle(
-                                          fontSize: 11.sp,
-                                          color: isSelected
-                                              ? Colors.white60
-                                              : Colors.grey.shade500,
-                                        ),
+                                      xsHeightSpan,
+                                      KText(
+                                        text: '${d['country']} · $code',
+                                        fontSize: 11.sp,
+                                        color: isSelected
+                                            ? Colors.white60
+                                            : Colors.grey.shade500,
                                       ),
                                     ],
                                   ),

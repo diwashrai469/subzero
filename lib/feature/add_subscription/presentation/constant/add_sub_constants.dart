@@ -7,6 +7,7 @@ const Color cardColor = Colors.white;
 const Color inputColor = Color(0xFFF9FAFB);
 const Color textSecondary = Color(0xFF6B7280);
 const Color borderColor = Color(0xFFE5E7EB);
+const Color textPrimary = Color(0xFF111827);
 
 const cycles = [
   'Weekly',

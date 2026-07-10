@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 
 Widget _inputBox({required Widget child, EdgeInsetsGeometry? padding}) {
@@ -63,7 +64,7 @@ Widget addSubTextField({
               color: textSecondary,
             ),
           ),
-          SizedBox(width: 10.w),
+          sWidthSpan,
         ],
         Expanded(
           child: TextField(
@@ -75,10 +76,7 @@ Widget addSubTextField({
             onChanged: (value) {
               onChanged(value);
             },
-            style: TextStyle(
-              fontSize: 14.5.sp,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w700),
             decoration: _inputDecoration(hint),
           ),
         ),

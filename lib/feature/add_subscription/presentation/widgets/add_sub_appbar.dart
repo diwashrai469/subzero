@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/injection/injection_service.dart';
-import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
+import 'package:subzero/feature/notification/presentation/constant/notification_constant.dart';
 
 PreferredSizeWidget addSubAppbar(
   bool isEditing,
@@ -35,26 +35,19 @@ PreferredSizeWidget addSubAppbar(
 Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
   return Center(
     child: Material(
-      color: Colors.transparent,
+      color: NotificationColors.surface,
+      shape: CircleBorder(side: BorderSide(color: NotificationColors.divider)),
       child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(100.r),
-        child: Ink(
-          width: 40.w,
-          height: 40.h,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
+        customBorder: const CircleBorder(),
+        onTap: () => locator<AppRouters>().popForced(),
+        child: SizedBox(
+          width: 42.w,
+          height: 42.w,
+          child: Icon(
+            Icons.arrow_back_rounded,
+            size: 21.sp,
+            color: NotificationColors.ink,
           ),
-          child: Icon(icon, size: 20.sp),
         ),
       ),
     ),

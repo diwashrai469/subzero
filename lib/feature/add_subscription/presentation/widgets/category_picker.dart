@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 
 class CategoryPicker extends StatelessWidget {
@@ -7,11 +9,7 @@ class CategoryPicker extends StatelessWidget {
 
   const CategoryPicker({super.key, required this.selectedCategory});
 
-  static const Color bgColor = Color(0xFFF6F7F9);
-  static const Color inputColor = Color(0xFFF9FAFB);
-  static const Color textPrimary = Color(0xFF111827);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color borderColor = Color(0xFFE5E7EB);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +54,12 @@ class CategoryPicker extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(
-          'Choose Category',
+        title: KText(
+          text: 'Choose Category',
           textAlign: TextAlign.center,
-          softWrap: true,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w900,
-            color: textPrimary,
-          ),
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w900,
+          color: textPrimary,
         ),
       ),
       body: SafeArea(
@@ -102,31 +97,24 @@ class CategoryPicker extends StatelessWidget {
                       size: 22.sp,
                     ),
                   ),
-                  SizedBox(width: 12.w),
+                  sWidthSpan,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Pick the best match',
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: 15.5.sp,
-                            height: 1.18,
-                            fontWeight: FontWeight.w900,
-                            color: textPrimary,
-                          ),
+                        KText(
+                          text: 'Pick the best match',
+                          fontSize: 15.5.sp,
+                          fontWeight: FontWeight.w900,
+                          color: textPrimary,
                         ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'This helps Subzero organise your subscriptions and keep your dashboard clean.',
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: 11.5.sp,
-                            height: 1.3,
-                            fontWeight: FontWeight.w500,
-                            color: textSecondary,
-                          ),
+                        xsHeightSpan,
+                        KText(
+                          text:
+                              'This helps Subzero organise your subscriptions and keep your dashboard clean.',
+                          fontSize: 11.5.sp,
+                          fontWeight: FontWeight.w500,
+                          color: textSecondary,
                         ),
                       ],
                     ),
@@ -135,7 +123,7 @@ class CategoryPicker extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 18.h),
+            mHeightSpan,
 
             _categoryGrid(context),
           ],
@@ -244,20 +232,16 @@ class CategoryPicker extends StatelessWidget {
                               ),
                             ),
 
-                            SizedBox(height: 8.h),
+                            sHeightSpan,
 
-                            Text(
-                              cat.label,
+                            KText(
+                              text: cat.label,
                               textAlign: TextAlign.center,
-                              softWrap: true,
-                              style: TextStyle(
-                                fontSize: 10.8.sp,
-                                height: 1.15,
-                                fontWeight: selected
-                                    ? FontWeight.w800
-                                    : FontWeight.w600,
-                                color: selected ? textPrimary : textSecondary,
-                              ),
+                              fontSize: 10.8.sp,
+                              fontWeight: selected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              color: selected ? textPrimary : textSecondary,
                             ),
                           ],
                         ),

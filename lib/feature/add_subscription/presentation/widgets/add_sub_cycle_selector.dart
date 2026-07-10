@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
@@ -46,14 +47,11 @@ Widget addSubCycleSelector({
                       ]
                     : [],
               ),
-              child: Text(
-                cycle,
-                softWrap: true,
-                style: TextStyle(
-                  fontSize: 12.5.sp,
-                  fontWeight: FontWeight.w800,
-                  color: selected ? Colors.white : textSecondary,
-                ),
+              child: KText(
+                text: cycle,
+                fontSize: 12.5.sp,
+                fontWeight: FontWeight.w800,
+                color: selected ? Colors.white : textSecondary,
               ),
             ),
           ),

@@ -42,14 +42,12 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label.toUpperCase(),
-      style: TextStyle(
-        fontSize: 10.5.sp,
-        color: const Color(0xFF9CA3AF),
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.8,
-      ),
+    return KText(
+      text: label.toUpperCase(),
+      fontSize: 10.5.sp,
+      color: const Color(0xFF9CA3AF),
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.8,
     );
   }
 }

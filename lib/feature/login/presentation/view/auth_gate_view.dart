@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
@@ -12,7 +13,7 @@ import 'package:subzero/core/services/toast/toast_service.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_background.dart';
 import 'package:subzero/feature/login/presentation/widgets/auth_brand_header.dart';
-import 'package:subzero/feature/login/presentation/widgets/auth_firebase_service.dart';
+import 'package:subzero/core/services/firebase/auth_firebase_service.dart';
 import 'package:subzero/feature/login/presentation/widgets/glass_login_panel.dart';
 import 'package:subzero/feature/login/presentation/widgets/login_legal_text.dart';
 import 'package:subzero/feature/login/presentation/widgets/plusing_dot.dart';
@@ -280,7 +281,7 @@ class _AuthGateViewState extends State<AuthGateView>
                                   isGoogleLoading: _isGoogleLoading,
                                   onGooglePressed: _handleGoogleSignIn,
                                 ),
-                                SizedBox(height: 18.h),
+                                mHeightSpan,
                                 const LoginLegalText(),
                                 SizedBox(height: (bottomInset > 0 ? 12 : 24).h),
                               ],

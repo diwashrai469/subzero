@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_text.dart';
 
 class AuthButton extends StatefulWidget {
   const AuthButton({
@@ -109,15 +111,13 @@ class _ButtonContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         icon,
-        SizedBox(width: 10.w),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: foregroundColor,
-            letterSpacing: 0.1,
-          ),
+        sWidthSpan,
+        KText(
+          text: label,
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: foregroundColor,
+          letterSpacing: 0.1,
         ),
       ],
     );
