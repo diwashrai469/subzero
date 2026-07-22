@@ -114,10 +114,9 @@ class _ButtonContent extends StatelessWidget {
         sWidthSpan,
         KText(
           text: label,
-          fontSize: 15.sp,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w600,
           color: foregroundColor,
-          letterSpacing: 0.1,
         ),
       ],
     );

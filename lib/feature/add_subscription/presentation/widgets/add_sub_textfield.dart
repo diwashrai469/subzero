@@ -76,7 +76,7 @@ Widget addSubTextField({
             onChanged: (value) {
               onChanged(value);
             },
-            style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w500),
             decoration: _inputDecoration(hint),
           ),
         ),

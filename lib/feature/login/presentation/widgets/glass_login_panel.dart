@@ -39,6 +39,7 @@ class GlassLoginPanel extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+
             children: [
               KText(
                 text: AuthCopy.continueWith,
@@ -51,7 +52,7 @@ class GlassLoginPanel extends StatelessWidget {
               mHeightSpan,
               AuthButton(
                 label: AuthCopy.continueWithGoogle,
-                icon: GoogleGlyph(size: 18.w),
+                icon: GoogleGlyph(size: 20.h),
                 backgroundColor: AuthPalette.glassFill,
                 foregroundColor: AuthPalette.textPrimary,
                 borderColor: AuthPalette.glassStroke,
@@ -62,7 +63,7 @@ class GlassLoginPanel extends StatelessWidget {
               mHeightSpan,
               AuthButton(
                 label: AuthCopy.continueWithApple,
-                icon: AppleGlyph(size: 18.w),
+                icon: AppleGlyph(size: 30.h),
                 backgroundColor: Colors.white,
                 foregroundColor: AuthPalette.bgTop,
                 isLoading: isAppleLoading,

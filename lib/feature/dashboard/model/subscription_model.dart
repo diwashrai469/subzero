@@ -3,11 +3,13 @@ class SubscriptionModel {
   final String name;
   final double amount;
   final String currency;
+  final String currencyCode;
   final DateTime firstBillDate;
   final DateTime nextBillDate;
   final String billingCycle;
   final String category;
   final String? cancelUrl;
+  final double totalTillDate;
 
   final String? lastReminderType;
   final String? lastReminderId;
@@ -26,6 +28,8 @@ class SubscriptionModel {
     this.lastReminderType,
     this.lastReminderId,
     this.lastReminderSentAt,
+    required this.totalTillDate,
+    required this.currencyCode,
   });
 
   SubscriptionModel copyWith({
@@ -41,6 +45,7 @@ class SubscriptionModel {
     String? lastReminderType,
     String? lastReminderId,
     DateTime? lastReminderSentAt,
+    double? totalTillDate,
   }) {
     return SubscriptionModel(
       id: id ?? this.id,
@@ -55,6 +60,8 @@ class SubscriptionModel {
       lastReminderType: lastReminderType ?? this.lastReminderType,
       lastReminderId: lastReminderId ?? this.lastReminderId,
       lastReminderSentAt: lastReminderSentAt ?? this.lastReminderSentAt,
+      totalTillDate: totalTillDate ?? this.totalTillDate,
+      currencyCode: '',
     );
   }
 }

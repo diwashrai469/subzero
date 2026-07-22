@@ -16,7 +16,6 @@ class KButton extends StatelessWidget {
   final bool? bordered;
   final Color? backgroundColor, foregroundColor;
 
-  @override
   const KButton({
     required this.child,
     required this.onPressed,
@@ -92,12 +91,6 @@ class KButton extends StatelessWidget {
         return 3.w;
     }
   }
-
-  /// Button is wrapped inside of theme to change the font-size of the
-  /// child text widget based on the size passed.
-  ///
-  /// The buttons can be wrapped to fit content by Wrapping it inside of Row,
-  /// and setting the mainAxisSize: MainAxisSize.min
 
   @override
   Widget build(BuildContext context) {

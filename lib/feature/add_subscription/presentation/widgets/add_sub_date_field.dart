@@ -341,7 +341,7 @@ class _CustomDatePickerDialogState extends State<_CustomDatePickerDialog>
           color: selected
               ? secondaryColor
               : today
-              ? primaryColor
+              ? disabledColor.withValues(alpha: 0.30)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: selected

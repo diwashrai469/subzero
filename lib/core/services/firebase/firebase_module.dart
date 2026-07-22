@@ -69,10 +69,13 @@ class SubscriptionFirebaseService {
     required String name,
     required double amount,
     required String currency,
+    required String currencyCode,
     required String billingCycle,
     required String category,
     required DateTime firstBillDate,
     required DateTime nextBillDate,
+    required double totalTillDate,
+
     String? cancelUrl,
   }) async {
     try {
@@ -91,7 +94,9 @@ class SubscriptionFirebaseService {
         'name': name,
         'amount': amount,
         'currency': currency,
+        'currencyCode': currencyCode,
         'billingCycle': billingCycle,
+        'totalTillDate': totalTillDate,
         'category': category,
         'firstBillDate': Timestamp.fromDate(firstBillDate),
         'nextBillDate': Timestamp.fromDate(nextBillDate),

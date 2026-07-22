@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/amount_format_helper.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 
@@ -29,10 +30,7 @@ class CostBreakdownCard extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _CostCell(
-              label: 'Daily',
-              value: '$currency${daily.toStringAsFixed(2)}',
-            ),
+            child: _CostCell(label: 'Daily', currency: currency, amount: daily),
           ),
           Expanded(
             child: Container(
@@ -43,7 +41,8 @@ class CostBreakdownCard extends StatelessWidget {
               ),
               child: _CostCell(
                 label: 'Monthly',
-                value: '$currency${monthly.toStringAsFixed(2)}',
+                currency: currency,
+                amount: monthly,
                 highlight: true,
               ),
             ),
@@ -51,7 +50,8 @@ class CostBreakdownCard extends StatelessWidget {
           Expanded(
             child: _CostCell(
               label: 'Yearly',
-              value: '$currency${yearly.toStringAsFixed(0)}',
+              currency: currency,
+              amount: yearly,
             ),
           ),
         ],
@@ -62,28 +62,33 @@ class CostBreakdownCard extends StatelessWidget {
 
 class _CostCell extends StatelessWidget {
   final String label;
-  final String value;
+  final String currency;
+  final double amount;
   final bool highlight;
 
   const _CostCell({
     required this.label,
-    required this.value,
+    required this.currency,
+    required this.amount,
     this.highlight = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = highlight ? const Color(0xFF6366F1) : const Color(0xFF111827);
+
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 14.h),
+      padding: EdgeInsets.symmetric(vertical: 13.h),
       child: Column(
         children: [
-          KText(text: label, fontSize: 10.sp, color: Colors.grey),
-          sHeightSpan,
+          KText(text: label, fontSize: 10.sp, color: const Color(0xFF9CA3AF)),
+
+          xsHeightSpan,
           KText(
-            text: value,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-            color: highlight ? const Color(0xFF6366F1) : Colors.black,
+            text: AmountFormatHelper.formatCurrency(amount, currency),
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: color,
           ),
         ],
       ),

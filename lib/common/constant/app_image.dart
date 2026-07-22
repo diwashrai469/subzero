@@ -27,6 +27,17 @@ class AppImage {
   static const String spotify = 'assets/category/spotify.png';
   static const String youtube = 'assets/category/youtube.png';
 
+  //sub info images
+  static const String spending = 'assets/sub_info/spending.png';
+  static const String billingCycle = 'assets/sub_info/billing_cycle.png';
+  static const String category = 'assets/sub_info/category.png';
+  static const String currency = 'assets/sub_info/currency.png';
+  static const String firstBilling = 'assets/sub_info/first_bill.png';
+  static const String nextBilling = 'assets/sub_info/next_bill.png';
+  static const String status = 'assets/sub_info/status.png';
+
+  static const String logout = 'assets/logout.png';
+
   //image height
   static final double llogoHeight = 130.h;
   static final double mlogoHeight = 70.h;

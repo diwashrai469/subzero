@@ -13,13 +13,18 @@ import 'package:subzero/feature/add_subscription/presentation/widgets/add_susbcr
 @injectable
 class AddSubCubit extends Cubit<AddSubState> {
   AddSubCubit(this._router, this._toast, this._firebase)
-    : super(AddSubState(currency: getLocaleCurrency()));
+    : super(
+        AddSubState(
+          // State holds the ISO currency code, for example AUD.
+          currency: getLocaleCurrency(),
+        ),
+      );
 
   final AppRouters _router;
   final ToastService _toast;
   final SubscriptionFirebaseService _firebase;
 
-  ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
 
   void setName(String value) {
     emit(state.copyWith(name: value));
@@ -29,8 +34,9 @@ class AddSubCubit extends Cubit<AddSubState> {
     emit(state.copyWith(amount: value));
   }
 
-  void setCurrency(String value) {
-    emit(state.copyWith(currency: value));
+  /// Receives a currency code such as AUD, USD or INR.
+  void setCurrency(String currencyCode) {
+    emit(state.copyWith(currency: currencyCode.trim().toUpperCase()));
   }
 
   void setCycle(String value) {
@@ -51,14 +57,19 @@ class AddSubCubit extends Cubit<AddSubState> {
     final firstBillDate = state.firstBillDate;
 
     if (name.isEmpty || amountText.isEmpty || firstBillDate == null) {
-      _toast.i('Please fill name, amount and date');
+      _toast.i('Please fill in all the required fields.');
       return;
     }
 
     final amount = double.tryParse(amountText);
 
     if (amount == null || amount <= 0) {
-      _toast.i('Enter a valid amount');
+      _toast.i('Enter a valid amount.');
+      return;
+    }
+
+    if (state.currency.trim().isEmpty) {
+      _toast.i('Please select a currency.');
       return;
     }
 
@@ -68,17 +79,27 @@ class AddSubCubit extends Cubit<AddSubState> {
       final id = existingId ?? DateTime.now().millisecondsSinceEpoch.toString();
 
       final subscriptionName = _capitalizeFirstLetter(name);
+
       final nextBillDate = calcNextBillDate(firstBillDate, state.billingCycle);
+
+      final currencyCode = state.currency.trim().toUpperCase();
+
+      final currencySymbol = getCurrencySymbol(currencyCode);
 
       await _firebase.saveSubscription(
         id: id,
         name: subscriptionName,
         amount: amount,
-        currency: state.currency,
+
+        currency: currencySymbol,
+
+        currencyCode: currencyCode,
+
         billingCycle: state.billingCycle,
         category: state.category,
         firstBillDate: firstBillDate,
         nextBillDate: nextBillDate,
+        totalTillDate: state.totalTillDate,
         cancelUrl: null,
       );
 
@@ -87,7 +108,7 @@ class AddSubCubit extends Cubit<AddSubState> {
       debugPrint('Failed to save subscription: $error');
       debugPrintStack(stackTrace: stackTrace);
 
-      _toast.i('Failed to save subscription');
+      _toast.i('Failed to save subscription.');
     } finally {
       if (!isClosed) {
         emit(state.copyWith(isLoading: false));
@@ -99,5 +120,11 @@ class AddSubCubit extends Cubit<AddSubState> {
     if (value.isEmpty) return value;
 
     return value[0].toUpperCase() + value.substring(1);
+  }
+
+  @override
+  Future<void> close() {
+    isLoadingNotifier.dispose();
+    return super.close();
   }
 }

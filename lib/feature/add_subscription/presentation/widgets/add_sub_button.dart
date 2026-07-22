@@ -65,6 +65,7 @@ Widget saveButton({
                       text: isEditing ? 'Updating...' : 'Saving...',
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w900,
+                      color: Colors.white,
                     ),
                   ],
                 )

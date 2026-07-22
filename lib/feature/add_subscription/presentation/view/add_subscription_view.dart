@@ -9,7 +9,7 @@ import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_cubit.dart';
 import 'package:subzero/feature/add_subscription/presentation/cubit/add_sub_state.dart';
-import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_appbar.dart';
+import 'package:subzero/common/widgets/k_appbar.dart';
 import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_button.dart';
 import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_category_selector.dart';
 import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_cycle_selector.dart';
@@ -56,7 +56,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
     cubit
       ..setName(sub.name)
       ..setAmount(sub.amount.toString())
-      ..setCurrency(sub.currency)
+      ..setCurrency(sub.currencyCode)
       ..setCycle(sub.billingCycle)
       ..setCategory(sub.category)
       ..setDate(sub.firstBillDate);
@@ -90,7 +90,10 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
         builder: (_, state) {
           return Scaffold(
             backgroundColor: bgColor,
-            appBar: addSubAppbar(isEditing, context, bgColor),
+            appBar: kAppbar(
+              text: isEditing ? 'Edit Subscription' : 'Add Subscription',
+              context: context,
+            ),
             body: SafeArea(
               bottom: false,
               child: ListView(
@@ -98,7 +101,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 24.h),
                 children: [
-                  mHeightSpan,
+                  sHeightSpan,
                   _sectionCard(
                     title: 'Subscription details',
                     subtitle: 'Enter the service name and amount.',
@@ -193,7 +196,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          KText(text: title, fontSize: 17.sp, fontWeight: FontWeight.bold),
+          KText(text: title, fontSize: 17.sp, fontWeight: FontWeight.w600),
           xxsHeightSpan,
           KText(
             text: subtitle,
@@ -212,7 +215,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
   Widget _fieldLabel(String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
-      child: KText(text: text, fontSize: 13.sp, fontWeight: FontWeight.w800),
+      child: KText(text: text, fontSize: 13.sp, fontWeight: FontWeight.w600),
     );
   }
 

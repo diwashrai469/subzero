@@ -2,12 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:subzero/common/constant/ui_helpers.dart';
 
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/theme/app_theme.dart';
+
+import '../../../../common/constant/app_image.dart';
 
 Future<void> logout(BuildContext context) async {
   final shouldLogout = await showModalBottomSheet<bool>(
@@ -31,17 +34,9 @@ Future<void> logout(BuildContext context) async {
               borderRadius: BorderRadius.circular(10.r),
             ),
           ),
-          SizedBox(height: 24.h),
-          Container(
-            width: 52.w,
-            height: 52.w,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            child: Icon(Icons.logout_rounded, size: 24.sp, color: Colors.black),
-          ),
-          SizedBox(height: 14.h),
+          lHeightSpan,
+          Image.asset(AppImage.logout, width: 44.w, height: 44.h),
+          mHeightSpan,
           KText(
             text: 'Log out?',
             fontSize: 18.sp,
@@ -49,7 +44,7 @@ Future<void> logout(BuildContext context) async {
             color: Colors.black,
             letterSpacing: -0.4,
           ),
-          SizedBox(height: 6.h),
+          xsHeightSpan,
           KText(
             text:
                 'You\'ll need to sign in again to\naccess your subscriptions.',
@@ -57,7 +52,7 @@ Future<void> logout(BuildContext context) async {
             color: Colors.grey.shade500,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 28.h),
+          lHeightSpan,
           GestureDetector(
             onTap: () => Navigator.of(sheetContext).pop(true),
             child: Container(
@@ -76,7 +71,7 @@ Future<void> logout(BuildContext context) async {
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          mHeightSpan,
           GestureDetector(
             onTap: () => Navigator.of(sheetContext).pop(false),
             child: Container(

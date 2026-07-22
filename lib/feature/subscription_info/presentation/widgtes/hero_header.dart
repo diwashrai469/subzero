@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/amount_format_helper.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
@@ -74,30 +75,32 @@ class HeroHeader extends StatelessWidget {
               ),
             ),
 
-            mHeightSpan,
+            sHeightSpan,
 
             KText(
               text: sub.name,
               textAlign: TextAlign.center,
               maxLines: 1,
               textOverflow: TextOverflow.ellipsis,
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w500,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
               color: const Color(0xFF6B7280),
             ),
 
-            xsHeightSpan,
+            sHeightSpan,
 
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: '${sub.currency}${sub.amount.toStringAsFixed(2)}',
+                    text: AmountFormatHelper.formatCurrency(
+                      sub.amount,
+                      sub.currency,
+                    ),
                     style: TextStyle(
                       fontSize: 20.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+                      fontWeight: FontWeight.w700,
                       color: const Color(0xFF111827),
                     ),
                   ),

@@ -39,7 +39,7 @@ class InfoCard extends StatelessWidget {
 
 /// A single row inside [InfoCard].
 class InfoRow extends StatelessWidget {
-  final IconData icon;
+  final String image;
   final String label;
   final String? value;
   final Color? valueColor;
@@ -47,7 +47,7 @@ class InfoRow extends StatelessWidget {
 
   const InfoRow({
     super.key,
-    required this.icon,
+    required this.image,
     required this.label,
     this.value,
     this.valueColor,
@@ -57,40 +57,41 @@ class InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       child: Row(
         children: [
-          _IconBox(icon: icon),
-          sWidthSpan,
-          KText(text: label),
+          Container(
+            width: 36.w,
+            height: 36.w,
+            padding: EdgeInsets.all(5.r),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F7FF),
+              borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(color: const Color(0xFFE6E9F5), width: 0.8),
+            ),
+            child: Image.asset(
+              image,
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+          mWidthSpan,
+          KText(
+            text: label,
+            fontWeight: FontWeight.w600,
+            fontSize: 13.sp,
+            color: const Color(0xFF6B7280),
+          ),
           const Spacer(),
           trailing ??
               KText(
                 text: value ?? '',
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: valueColor ?? Colors.black,
               ),
         ],
       ),
-    );
-  }
-}
-
-class _IconBox extends StatelessWidget {
-  final IconData icon;
-
-  const _IconBox({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32.w,
-      height: 32.w,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(9.r),
-      ),
-      child: Icon(icon, size: 16.sp, color: const Color(0xFF6B7280)),
     );
   }
 }

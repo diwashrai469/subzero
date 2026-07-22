@@ -26,7 +26,7 @@ class DashboardView extends StatelessWidget {
 
   Widget _list(List<SubscriptionModel> items) {
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 10.h),
+      padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 0.h),
       sliver: SliverList.separated(
         itemCount: items.length,
         separatorBuilder: (_, _) => sHeightSpan,
@@ -192,6 +192,116 @@ class DashboardView extends StatelessWidget {
     return 'Signed in securely';
   }
 
+  Map<String, double> _monthlySpendByCurrency(
+    List<SubscriptionModel> subscriptions,
+  ) {
+    final totals = <String, double>{};
+
+    for (final subscription in subscriptions) {
+      final currency = subscription.currency.trim().isEmpty
+          ? 'AUD'
+          : subscription.currency.trim().toUpperCase();
+
+      final monthlyAmount = _monthlyEquivalent(subscription);
+
+      totals.update(
+        currency,
+        (currentAmount) => currentAmount + monthlyAmount,
+        ifAbsent: () => monthlyAmount,
+      );
+    }
+
+    return totals;
+  }
+
+  Map<String, double> _yearlySpendByCurrency(
+    List<SubscriptionModel> subscriptions,
+  ) {
+    final totals = <String, double>{};
+
+    for (final subscription in subscriptions) {
+      final currency = subscription.currency.trim().isEmpty
+          ? 'AUD'
+          : subscription.currency.trim().toUpperCase();
+
+      final yearlyAmount = _yearlyEquivalent(subscription);
+
+      totals.update(
+        currency,
+        (currentAmount) => currentAmount + yearlyAmount,
+        ifAbsent: () => yearlyAmount,
+      );
+    }
+
+    return totals;
+  }
+
+  double _monthlyEquivalent(SubscriptionModel subscription) {
+    final amount = subscription.amount;
+
+    switch (subscription.billingCycle.trim().toLowerCase()) {
+      case 'daily':
+        return amount * 365 / 12;
+
+      case 'weekly':
+        return amount * 52 / 12;
+
+      case 'fortnightly':
+        return amount * 26 / 12;
+
+      case 'monthly':
+        return amount;
+
+      case 'quarterly':
+        return amount / 3;
+
+      case 'semi-annually':
+      case 'semi annually':
+      case 'semiannual':
+      case 'semi-annual':
+        return amount / 6;
+
+      case 'yearly':
+        return amount / 12;
+
+      default:
+        return amount;
+    }
+  }
+
+  double _yearlyEquivalent(SubscriptionModel subscription) {
+    final amount = subscription.amount;
+
+    switch (subscription.billingCycle.trim().toLowerCase()) {
+      case 'daily':
+        return amount * 365;
+
+      case 'weekly':
+        return amount * 52;
+
+      case 'fortnightly':
+        return amount * 26;
+
+      case 'monthly':
+        return amount * 12;
+
+      case 'quarterly':
+        return amount * 4;
+
+      case 'semi-annually':
+      case 'semi annually':
+      case 'semiannual':
+      case 'semi-annual':
+        return amount * 2;
+
+      case 'yearly':
+        return amount;
+
+      default:
+        return amount * 12;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -225,84 +335,85 @@ class DashboardView extends StatelessWidget {
               child: Icon(Icons.add_rounded, color: Colors.white, size: 32.sp),
             ),
           ),
-          body: SafeArea(
-            child: BlocBuilder<DashboardCubit, DashboardState>(
-              builder: (context, state) {
-                if (state.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          body: BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              if (state.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                final currencySymbol = state.allSubs.isEmpty
-                    ? ''
-                    : state.allSubs.first.currency;
+              final monthlySpendByCurrency = _monthlySpendByCurrency(
+                state.allSubs,
+              );
 
-                return CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.dg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+              final yearlySpendByCurrency = _yearlySpendByCurrency(
+                state.allSubs,
+              );
+
+              return CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.dg, 50.dg, 16.dg, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          sHeightSpan,
+                          DashboardHeader(
+                            notificationCount: state.notificationCount,
+                            onProfileTap: () => _showProfileSheet(context),
+                            onNotificationTap: () async {
+                              locator<AppRouters>().push(
+                                const NotificationView(),
+                              );
+
+                              if (!context.mounted) return;
+
+                              await context
+                                  .read<DashboardCubit>()
+                                  .markAllNotificationsAsSeen();
+                            },
+                          ),
+
+                          lHeightSpan,
+
+                          SummaryCard(
+                            label: 'Monthly Spend',
+                            monthlySpendByCurrency: monthlySpendByCurrency,
+                            yearlySpendByCurrency: yearlySpendByCurrency,
+                            badge: state.allSubs.length.toString(),
+                          ),
+
+                          if (state.biggestSubs.isNotEmpty) ...[
                             sHeightSpan,
-                            DashboardHeader(
-                              notificationCount: state.notificationCount,
-                              onProfileTap: () => _showProfileSheet(context),
-                              onNotificationTap: () async {
-                                locator<AppRouters>().push(
-                                  const NotificationView(),
-                                );
-
-                                if (!context.mounted) return;
-
-                                await context
-                                    .read<DashboardCubit>()
-                                    .markAllNotificationsAsSeen();
-                              },
+                            BiggestSubscriptionCard(
+                              subscriptions: state.biggestSubs,
+                              percentage: state.biggestSubPercentage,
                             ),
-
-                            lHeightSpan,
-
-                            SummaryCard(
-                              label: 'Monthly Spend',
-                              currencySymbol: currencySymbol,
-                              value: state.monthlySpend.toStringAsFixed(2),
-                              yearlyValue: state.yearlySpend.toStringAsFixed(2),
-                              badge: state.allSubs.length.toString(),
-                            ),
-
-                            if (state.biggestSubs.isNotEmpty) ...[
-                              sHeightSpan,
-                              BiggestSubscriptionCard(
-                                subscriptions: state.biggestSubs,
-                                percentage: state.biggestSubPercentage,
-                              ),
-                            ],
                           ],
-                        ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.all(14.dg),
-                        child: KText(
-                          text: 'All SUBSCRIPTIONS',
-                          textAlign: TextAlign.left,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(14.dg),
+                      child: KText(
+                        text: 'All SUBSCRIPTIONS',
+                        textAlign: TextAlign.left,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
+                  ),
 
-                    if (state.allSubs.isEmpty)
-                      emptyState()
-                    else
-                      _list(state.allSubs),
-                  ],
-                );
-              },
-            ),
+                  if (state.allSubs.isEmpty)
+                    emptyState()
+                  else
+                    _list(state.allSubs),
+                ],
+              );
+            },
           ),
         ),
       ),

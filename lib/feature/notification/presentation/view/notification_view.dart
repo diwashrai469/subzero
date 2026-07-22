@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
-
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/core/injection/injection_service.dart';
+import 'package:subzero/common/widgets/k_appbar.dart';
 import 'package:subzero/feature/dashboard/presentation/widgets/subscription_category.dart';
 import 'package:subzero/feature/notification/model/notification_model.dart';
 import 'package:subzero/feature/notification/presentation/constant/notification_constant.dart';
@@ -43,90 +43,36 @@ class _NotificationViewState extends State<NotificationView> {
           statusBarBrightness: Brightness.light,
         ),
         child: Scaffold(
+          appBar: kAppbar(text: 'Notifications', context: context),
           backgroundColor: NotificationColors.background,
-          body: SafeArea(
-            child: BlocBuilder<NotificationCubit, NotificationState>(
-              builder: (context, state) {
-                if (state.loading) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: NotificationColors.ink,
-                      strokeWidth: 2,
-                    ),
-                  );
-                }
-
-                return CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(child: _Header()),
-
-                    if (state.notifications.isEmpty)
-                      const SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: NotificationEmptyStateView(),
-                      )
-                    else
-                      _NotificationList(notifications: state.notifications),
-
-                    SliverToBoxAdapter(child: SizedBox(height: 32.h)),
-                  ],
+          body: BlocBuilder<NotificationCubit, NotificationState>(
+            builder: (context, state) {
+              if (state.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: NotificationColors.ink,
+                    strokeWidth: 2,
+                  ),
                 );
-              },
-            ),
+              }
+
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  if (state.notifications.isEmpty)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: NotificationEmptyStateView(),
+                    )
+                  else
+                    _NotificationList(notifications: state.notifications),
+
+                  SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+                ],
+              );
+            },
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 28.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 44.h,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Material(
-                    color: NotificationColors.surface,
-                    shape: CircleBorder(
-                      side: BorderSide(color: NotificationColors.divider),
-                    ),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => Navigator.of(context).pop(),
-                      child: SizedBox(
-                        width: 42.w,
-                        height: 42.w,
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          size: 21.sp,
-                          color: NotificationColors.ink,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                KText(
-                  text: 'Notifications',
-                  fontSize: 21.sp,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -142,7 +88,7 @@ class _NotificationList extends StatelessWidget {
     final grouped = _group(notifications);
 
     return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, i) {
           final label = grouped.keys.elementAt(i);
@@ -243,9 +189,8 @@ class _NotificationCard extends StatelessWidget {
                               text: notification.title,
                               fontSize: 14.5.sp,
                               textAlign: TextAlign.start,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
                               color: NotificationColors.ink,
-                              letterSpacing: -0.2,
                               maxLines: 1,
                               textOverflow: TextOverflow.ellipsis,
                             ),

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:subzero/common/constant/amount_format_helper.dart';
 import 'package:subzero/common/constant/app_image.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
+import 'package:subzero/common/widgets/k_back_button.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
@@ -47,18 +49,12 @@ class _SubscriptionInfoBody extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 265.h,
+            expandedHeight: MediaQuery.of(context).size.height * 0.31,
             pinned: false,
             systemOverlayStyle: SystemUiOverlayStyle.dark,
             backgroundColor: const Color(0xFFF5F5F7),
-            leading: NavButton(
-              onTap: () => locator<AppRouters>().popForced(),
-              child: Icon(
-                Icons.arrow_back,
-                color: const Color(0xFF374151),
-                size: 18.sp,
-              ),
-            ),
+            leading: KBackButton(),
+
             actions: [
               NavButton(
                 onTap: () => locator<AppRouters>().push(
@@ -66,6 +62,7 @@ class _SubscriptionInfoBody extends StatelessWidget {
                 ),
                 child: Image.asset(AppImage.editIcon, fit: BoxFit.contain),
               ),
+              xsWidthSpan,
 
               NavButton(
                 onTap: () => deleteSubDialog(context: context, sub: sub),
@@ -89,12 +86,29 @@ class _SubscriptionInfoBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SectionLabel(label: 'Cost Breakdown'),
-                  SizedBox(height: 10.h),
+                  sHeightSpan,
                   CostBreakdownCard(
                     currency: sub.currency,
                     daily: state.dailyEquivalent,
                     monthly: state.monthlyEquivalent,
                     yearly: state.yearlyEquivalent,
+                  ),
+                  lHeightSpan,
+
+                  const SectionLabel(label: 'Spending Summary'),
+                  sHeightSpan,
+
+                  InfoCard(
+                    rows: [
+                      InfoRow(
+                        image: AppImage.spending,
+                        label: 'Total Spent Till Date',
+                        value: AmountFormatHelper.formatCurrency(
+                          sub.totalTillDate,
+                          sub.currency,
+                        ),
+                      ),
+                    ],
                   ),
 
                   lHeightSpan,
@@ -104,18 +118,18 @@ class _SubscriptionInfoBody extends StatelessWidget {
                   InfoCard(
                     rows: [
                       InfoRow(
-                        icon: Icons.calendar_today_outlined,
+                        image: AppImage.firstBilling,
                         label: 'First Billed',
                         value: formatDate(sub.firstBillDate),
                       ),
                       InfoRow(
-                        icon: Icons.event_outlined,
+                        image: AppImage.nextBilling,
                         label: 'Next Bill',
                         value: formatDate(state.nextBillDate),
                         valueColor: urgency,
                       ),
                       InfoRow(
-                        icon: Icons.repeat_outlined,
+                        image: AppImage.billingCycle,
                         label: 'Billing Cycle',
                         value: capitalize(sub.billingCycle),
                       ),
@@ -129,17 +143,17 @@ class _SubscriptionInfoBody extends StatelessWidget {
                   InfoCard(
                     rows: [
                       InfoRow(
-                        icon: Icons.sell_outlined,
+                        image: AppImage.category,
                         label: 'Category',
                         value: capitalize(sub.category),
                       ),
                       InfoRow(
-                        icon: Icons.paid_outlined,
+                        image: AppImage.currency,
                         label: 'Currency',
-                        value: sub.currency,
+                        value: sub.currencyCode.toUpperCase(),
                       ),
                       InfoRow(
-                        icon: Icons.check_circle_outline,
+                        image: AppImage.status,
                         label: 'Status',
                         trailing: const ActivePill(),
                       ),

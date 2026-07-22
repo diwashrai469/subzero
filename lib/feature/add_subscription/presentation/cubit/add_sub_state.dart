@@ -6,6 +6,7 @@ class AddSubState {
   final String category;
   final DateTime? firstBillDate;
   final bool isLoading;
+  final double totalTillDate;
 
   const AddSubState({
     this.name = '',
@@ -13,6 +14,7 @@ class AddSubState {
     this.currency = 'USD',
     this.billingCycle = 'Monthly',
     this.category = 'Others',
+    this.totalTillDate = 0.0,
     this.firstBillDate,
     this.isLoading = false,
   });
@@ -25,6 +27,7 @@ class AddSubState {
     String? category,
     DateTime? firstBillDate,
     bool? isLoading,
+    double? totalTillDate,
   }) {
     return AddSubState(
       name: name ?? this.name,
@@ -34,6 +37,7 @@ class AddSubState {
       category: category ?? this.category,
       firstBillDate: firstBillDate ?? this.firstBillDate,
       isLoading: isLoading ?? this.isLoading,
+      totalTillDate: totalTillDate ?? this.totalTillDate,
     );
   }
 }

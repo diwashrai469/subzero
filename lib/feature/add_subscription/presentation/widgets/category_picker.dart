@@ -3,65 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
+import 'package:subzero/common/widgets/k_appbar.dart';
 
 class CategoryPicker extends StatelessWidget {
   final String selectedCategory;
 
   const CategoryPicker({super.key, required this.selectedCategory});
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 0,
-        centerTitle: true,
-        surfaceTintColor: Colors.transparent,
-        leadingWidth: 58.w,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 12.w),
-          child: Center(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => Navigator.pop(context),
-                borderRadius: BorderRadius.circular(100.r),
-                child: Ink(
-                  width: 40.r,
-                  height: 40.r,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: borderColor),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_rounded,
-                    size: 20.sp,
-                    color: textPrimary,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        title: KText(
-          text: 'Choose Category',
-          textAlign: TextAlign.center,
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w900,
-          color: textPrimary,
-        ),
-      ),
+      appBar: kAppbar(text: 'Pick a Category', context: context),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 24.h),
@@ -105,7 +58,7 @@ class CategoryPicker extends StatelessWidget {
                         KText(
                           text: 'Pick the best match',
                           fontSize: 15.5.sp,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                           color: textPrimary,
                         ),
                         xsHeightSpan,
@@ -115,6 +68,7 @@ class CategoryPicker extends StatelessWidget {
                           fontSize: 11.5.sp,
                           fontWeight: FontWeight.w500,
                           color: textSecondary,
+                          textAlign: TextAlign.start,
                         ),
                       ],
                     ),
@@ -237,7 +191,7 @@ class CategoryPicker extends StatelessWidget {
                             KText(
                               text: cat.label,
                               textAlign: TextAlign.center,
-                              fontSize: 10.8.sp,
+                              fontSize: 12.sp,
                               fontWeight: selected
                                   ? FontWeight.w800
                                   : FontWeight.w600,

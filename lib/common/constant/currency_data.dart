@@ -3,13 +3,73 @@ import 'dart:io';
 
 String getLocaleCurrency() {
   try {
-    final locale = Platform.localeName; // e.g. "en_AU", "hi_IN"
+    final locale = Platform.localeName;
     final countryCode = locale.split('_').last.split('.').first.toUpperCase();
     return _countryToCurrency[countryCode] ?? 'USD';
   } catch (_) {
     return 'USD';
   }
 }
+
+String getCurrencySymbol(String currencyCode) {
+  final normalizedCode = currencyCode.trim().toUpperCase();
+
+  return currencySymbols[normalizedCode] ?? normalizedCode;
+}
+
+const Map<String, String> currencySymbols = {
+  'AED': 'د.إ',
+  'AFN': '؋',
+  'ALL': 'L',
+  'AMD': '֏',
+  'AOA': 'Kz',
+  'ARS': r'$',
+  'AUD': r'$',
+  'BDT': '৳',
+  'BGN': 'лв',
+  'BHD': 'د.ب',
+  'BRL': r'R$',
+  'CAD': r'$',
+  'CHF': 'CHF',
+  'CNY': '¥',
+  'CZK': 'Kč',
+  'DKK': 'kr',
+  'EGP': 'E£',
+  'EUR': '€',
+  'GBP': '£',
+  'GHS': '₵',
+  'HKD': r'$',
+  'HUF': 'Ft',
+  'IDR': 'Rp',
+  'ILS': '₪',
+  'INR': '₹',
+  'JPY': '¥',
+  'KRW': '₩',
+  'KWD': 'د.ك',
+  'LKR': 'Rs',
+  'MXN': r'$',
+  'MYR': 'RM',
+  'NGN': '₦',
+  'NOK': 'kr',
+  'NPR': 'रू',
+  'NZD': r'$',
+  'PHP': '₱',
+  'PKR': 'Rs',
+  'PLN': 'zł',
+  'QAR': 'ر.ق',
+  'RON': 'lei',
+  'RUB': '₽',
+  'SAR': 'ر.س',
+  'SEK': 'kr',
+  'SGD': r'$',
+  'THB': '฿',
+  'TRY': '₺',
+  'TWD': r'NT$',
+  'UAH': '₴',
+  'USD': r'$',
+  'VND': '₫',
+  'ZAR': 'R',
+};
 
 const _countryToCurrency = {
   'AE': 'AED',

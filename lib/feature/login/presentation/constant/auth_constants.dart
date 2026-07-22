@@ -21,9 +21,9 @@ class AuthPalette {
 class AuthCopy {
   const AuthCopy._();
 
-  static const appName = 'Subzero';
+  static const appName = 'SubZero';
 
-  static const tagline = 'Track every subscription,\nbefore it tracks you.';
+  static const tagline = 'Never lose track of a recurring \npayment again.';
 
   static const continueWith = 'Continue with';
 

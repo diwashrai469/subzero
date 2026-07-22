@@ -27,27 +27,26 @@ class DashboardHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ClipRect(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  heightFactor: 0.55.h,
-                  child: Image.asset(
-                    AppImage.appText,
-                    width: 120.w,
-                    fit: BoxFit.contain,
-                  ),
-                ),
+              Image.asset(
+                AppImage.appText,
+                width: 120.w.clamp(90.0, 140.0),
+                fit: BoxFit.contain,
               ),
 
-              sHeightSpan,
+              8.verticalSpace,
 
-              KText(
-                text: 'Your recurring spend, simplified.',
-                fontSize: 14.sp,
-                color: Colors.grey,
+              Flexible(
+                child: KText(
+                  text: 'Your recurring spend, simplified.',
+                  fontSize: 14.sp,
+                  color: Colors.grey,
+                  maxLines: 2,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -84,6 +83,7 @@ class _CircleIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasBadge = badgeCount > 0;
+    final buttonSize = 44.r;
 
     return GestureDetector(
       onTap: onTap,
@@ -91,29 +91,28 @@ class _CircleIconButton extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            width: 42.w,
-            height: 42.h,
+            width: buttonSize,
+            height: buttonSize,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: Colors.grey.shade200, width: 1.r),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 5),
+                  blurRadius: 12.r,
+                  offset: Offset(0, 5.h),
                 ),
               ],
             ),
-            child: Icon(icon, size: 22.sp, color: Colors.black),
+            child: Icon(icon, size: 24.sp, color: Colors.black),
           ),
-
           if (hasBadge)
             Positioned(
-              top: -2.h,
-              right: -2.w,
+              top: -2.r,
+              right: -2.r,
               child: Container(
-                constraints: BoxConstraints(minWidth: 18.w, minHeight: 18.w),
+                constraints: BoxConstraints(minWidth: 18.r, minHeight: 18.r),
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
                 decoration: BoxDecoration(
                   color: Colors.red,
@@ -121,17 +120,14 @@ class _CircleIconButton extends StatelessWidget {
                   borderRadius: badgeCount > 9
                       ? BorderRadius.circular(20.r)
                       : null,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width: 2.r),
                 ),
                 alignment: Alignment.center,
-                child: Padding(
-                  padding: EdgeInsets.all(1.5.dg),
-                  child: KText(
-                    text: badgeCount > 99 ? '99+' : badgeCount.toString(),
-                    color: Colors.white,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: KText(
+                  text: badgeCount > 99 ? '99+' : badgeCount.toString(),
+                  color: Colors.white,
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -151,31 +147,37 @@ class _SmallProfileAvatar extends StatelessWidget {
     final photoUrl = user?.photoURL;
     final initial = _initial(user);
 
-    return Container(
-      width: 44.w,
-      height: 44.h,
-      decoration: BoxDecoration(
-        color: primaryColor,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: photoUrl != null && photoUrl.isNotEmpty
-            ? Image.network(
-                photoUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) {
-                  return _InitialAvatar(initial: initial, fontSize: 18.sp);
-                },
-              )
-            : _InitialAvatar(initial: initial, fontSize: 18.sp),
+    final avatarSize = 43.h;
+
+    return SizedBox(
+      width: avatarSize,
+      height: avatarSize,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: primaryColor,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.16),
+              blurRadius: 16.r,
+              offset: Offset(0, 8.h),
+            ),
+          ],
+        ),
+        child: ClipOval(
+          child: photoUrl != null && photoUrl.isNotEmpty
+              ? Image.network(
+                  photoUrl,
+                  width: avatarSize,
+                  height: avatarSize,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) {
+                    return _InitialAvatar(initial: initial, fontSize: 18.sp);
+                  },
+                )
+              : _InitialAvatar(initial: initial, fontSize: 18.sp),
+        ),
       ),
     );
   }
@@ -191,30 +193,36 @@ class LargeProfileAvatar extends StatelessWidget {
     final photoUrl = user?.photoURL;
     final initial = _initial(user);
 
-    return Container(
-      width: 84.w,
-      height: 84.h,
-      decoration: BoxDecoration(
-        color: primaryColor,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: photoUrl != null && photoUrl.isNotEmpty
-            ? Image.network(
-                photoUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) {
-                  return _InitialAvatar(initial: initial, fontSize: 32.sp);
-                },
-              )
-            : _InitialAvatar(initial: initial, fontSize: 32.sp),
+    final avatarSize = 84.r;
+
+    return SizedBox(
+      width: avatarSize,
+      height: avatarSize,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: primaryColor,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.16),
+              blurRadius: 22.r,
+              offset: Offset(0, 10.h),
+            ),
+          ],
+        ),
+        child: ClipOval(
+          child: photoUrl != null && photoUrl.isNotEmpty
+              ? Image.network(
+                  photoUrl,
+                  width: avatarSize,
+                  height: avatarSize,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) {
+                    return _InitialAvatar(initial: initial, fontSize: 32.sp);
+                  },
+                )
+              : _InitialAvatar(initial: initial, fontSize: 32.sp),
+        ),
       ),
     );
   }
