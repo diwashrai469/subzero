@@ -13,6 +13,8 @@ import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:subzero/core/app_routers/app_routers.dart' as _i532;
+import 'package:subzero/core/pro/cubit/pro_cubit.dart' as _i706;
+import 'package:subzero/core/pro/service/pro_services.dart' as _i686;
 import 'package:subzero/core/services/firebase/auth_firebase_service.dart'
     as _i437;
 import 'package:subzero/core/services/firebase/firebase_module.dart' as _i156;
@@ -42,9 +44,12 @@ extension GetItInjectableX on _i174.GetIt {
     final firebaseModule = _$FirebaseModule();
     gh.factory<_i253.NotificationCubit>(() => _i253.NotificationCubit());
     gh.singleton<_i532.AppRouters>(() => _i532.AppRouters());
+    gh.lazySingleton<_i686.ProService>(() => _i686.ProService());
     gh.lazySingleton<_i350.ToastService>(() => _i350.ToastService());
     gh.lazySingleton<_i974.FirebaseFirestore>(() => firebaseModule.firestore);
     gh.lazySingleton<_i59.FirebaseAuth>(() => firebaseModule.firebaseAuth);
+    gh.lazySingleton<_i706.ProCubit>(
+        () => _i706.ProCubit(gh<_i686.ProService>()));
     gh.lazySingleton<_i437.AuthFirebaseService>(() => _i437.AuthFirebaseService(
           gh<_i59.FirebaseAuth>(),
           gh<_i974.FirebaseFirestore>(),
@@ -60,13 +65,14 @@ extension GetItInjectableX on _i174.GetIt {
       _,
     ) =>
         _i419.SubscriptionInfoCubit(sub));
-    gh.factory<_i82.DashboardCubit>(
-        () => _i82.DashboardCubit(gh<_i156.SubscriptionFirebaseService>()));
     gh.factory<_i958.AddSubCubit>(() => _i958.AddSubCubit(
           gh<_i532.AppRouters>(),
           gh<_i350.ToastService>(),
           gh<_i156.SubscriptionFirebaseService>(),
+          gh<_i706.ProCubit>(),
         ));
+    gh.factory<_i82.DashboardCubit>(
+        () => _i82.DashboardCubit(gh<_i156.SubscriptionFirebaseService>()));
     return this;
   }
 }

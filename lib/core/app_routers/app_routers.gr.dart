@@ -35,6 +35,7 @@ abstract class $AppRouters extends _i6.RootStackRouter {
         child: _i1.AddSubscriptionView(
           key: args.key,
           existingSub: args.existingSub,
+          subCount: args.subCount,
         ),
       );
     },
@@ -75,12 +76,14 @@ class AddSubscriptionView extends _i6.PageRouteInfo<AddSubscriptionViewArgs> {
   AddSubscriptionView({
     _i7.Key? key,
     _i8.SubscriptionModel? existingSub,
+    int? subCount,
     List<_i6.PageRouteInfo>? children,
   }) : super(
           AddSubscriptionView.name,
           args: AddSubscriptionViewArgs(
             key: key,
             existingSub: existingSub,
+            subCount: subCount,
           ),
           initialChildren: children,
         );
@@ -95,15 +98,18 @@ class AddSubscriptionViewArgs {
   const AddSubscriptionViewArgs({
     this.key,
     this.existingSub,
+    this.subCount,
   });
 
   final _i7.Key? key;
 
   final _i8.SubscriptionModel? existingSub;
 
+  final int? subCount;
+
   @override
   String toString() {
-    return 'AddSubscriptionViewArgs{key: $key, existingSub: $existingSub}';
+    return 'AddSubscriptionViewArgs{key: $key, existingSub: $existingSub, subCount: $subCount}';
   }
 }
 

@@ -58,8 +58,8 @@ class HeroHeader extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  width: 77.r,
-                  height: 77.r,
+                  width: 90.r,
+                  height: 90.r,
                   decoration: BoxDecoration(
                     color: scaffoldBgColor,
                     borderRadius: BorderRadius.circular(14.r),
@@ -68,7 +68,7 @@ class HeroHeader extends StatelessWidget {
                   child: Center(
                     child: SubscriptionCategoryIcon(
                       category: sub.category,
-                      size: 47.w,
+                      size: 65.w,
                     ),
                   ),
                 ),

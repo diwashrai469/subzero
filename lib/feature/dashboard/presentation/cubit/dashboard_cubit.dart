@@ -6,9 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badge_control/flutter_app_badge_control.dart';
 import 'package:injectable/injectable.dart';
-
 import 'package:subzero/core/services/firebase/firebase_module.dart';
 import 'package:subzero/core/services/notification/analytics_service.dart';
+import 'package:subzero/feature/dashboard/helper/dashboard_helper.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
 
 import 'dashboard_state.dart';
@@ -22,6 +22,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   final SubscriptionFirebaseService _firebase;
 
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscriptionStream;
+
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userStream;
 
   Future<void> load() async {
@@ -38,10 +39,12 @@ class DashboardCubit extends Cubit<DashboardState> {
     _subscriptionStream = _firebase.subscriptionStream().listen(
       (snapshot) {
         final subscriptions = snapshot.docs.map(_mapSubscription).toList();
+
         _process(subscriptions);
       },
       onError: (error) {
         debugPrint('Failed to listen to subscriptions: $error');
+
         emit(state.copyWith(loading: false));
       },
     );
@@ -69,6 +72,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           },
           onError: (error) {
             debugPrint('Failed to listen to notification count: $error');
+
             emit(state.copyWith(notificationCount: 0));
           },
         );
@@ -80,19 +84,19 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       if (user == null) return;
 
-      final userRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid);
+      final firestore = FirebaseFirestore.instance;
+
+      final userRef = firestore.collection('users').doc(user.uid);
 
       final unreadNotifications = await userRef
           .collection('notifications')
           .where('isSeen', isEqualTo: false)
           .get();
 
-      final batch = FirebaseFirestore.instance.batch();
+      final batch = firestore.batch();
 
-      for (final doc in unreadNotifications.docs) {
-        batch.update(doc.reference, {
+      for (final document in unreadNotifications.docs) {
+        batch.update(document.reference, {
           'isSeen': true,
           'seenAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
@@ -113,50 +117,55 @@ class DashboardCubit extends Cubit<DashboardState> {
       if (isBadgeSupported) {
         await FlutterAppBadgeControl.removeBadge();
       }
-    } catch (e) {
-      debugPrint('Failed to mark notifications as seen: $e');
+    } catch (error) {
+      debugPrint('Failed to mark notifications as seen: $error');
     }
   }
 
   SubscriptionModel _mapSubscription(
-    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+    QueryDocumentSnapshot<Map<String, dynamic>> document,
   ) {
-    final data = doc.data();
+    final data = document.data();
 
     return SubscriptionModel(
-      id: doc.id,
-      name: data['name'] ?? '',
+      id: document.id,
+      name: data['name'] as String? ?? '',
       amount: _readDouble(data['amount']),
       totalTillDate: _readDouble(data['totalTillDate']),
-      currency: data['currency'] ?? '\$',
-      currencyCode: data['currencyCode'] ?? 'USD',
+      currency: data['currency'] as String? ?? '\$',
+      currencyCode: data['currencyCode'] as String? ?? 'USD',
       firstBillDate: _readTimestamp(data['firstBillDate']),
       nextBillDate: _readTimestamp(data['nextBillDate']),
-      billingCycle: data['billingCycle'] ?? '',
-      category: data['category'] ?? '',
-      cancelUrl: data['cancelUrl'],
-      lastReminderType: data['lastReminderType'],
-      lastReminderId: data['lastReminderId'],
+      billingCycle: data['billingCycle'] as String? ?? '',
+      category: data['category'] as String? ?? '',
+      cancelUrl: data['cancelUrl'] as String?,
+      reminderDays: _readReminderDays(data['reminderDays']),
+      lastReminderType: data['lastReminderType'] as String?,
+      lastReminderId: data['lastReminderId'] as String?,
       lastReminderSentAt: _readNullableTimestamp(data['lastReminderSentAt']),
+      lastChargedAt: _readNullableTimestamp(data['lastChargedAt']),
     );
   }
 
   void _process(List<SubscriptionModel> subscriptions) {
-    final today = _dateOnly(DateTime.now());
+    final helper = DashboardHelper();
 
-    final sortedSubscriptions = subscriptions.toList()
-      ..sort((a, b) {
-        final aUpcomingDate = _getUpcomingDate(a, today);
-        final bUpcomingDate = _getUpcomingDate(b, today);
+    final sortedSubscriptions = List<SubscriptionModel>.from(subscriptions)
+      ..sort((first, second) {
+        final firstDueDate = helper.effectiveDueDate(first);
+        final secondDueDate = helper.effectiveDueDate(second);
 
-        final dateCompare = aUpcomingDate.compareTo(bUpcomingDate);
+        final dateComparison = firstDueDate.compareTo(secondDueDate);
 
-        if (dateCompare != 0) return dateCompare;
+        if (dateComparison != 0) {
+          return dateComparison;
+        }
 
-        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        return first.name.toLowerCase().compareTo(second.name.toLowerCase());
       });
 
     final monthlySpend = AnalyticsService.monthlyLeakage(sortedSubscriptions);
+
     final yearlySpend = AnalyticsService.yearlyWaste(sortedSubscriptions);
 
     final highestAmount = _getHighestAmount(sortedSubscriptions);
@@ -167,7 +176,8 @@ class DashboardCubit extends Cubit<DashboardState> {
               .where((subscription) => subscription.amount == highestAmount)
               .toList();
 
-    final biggestSubPercentage = monthlySpend == 0 || highestAmount == 0
+    final biggestSubscriptionPercentage =
+        monthlySpend == 0 || highestAmount == 0
         ? 0.0
         : (highestAmount / monthlySpend) * 100;
 
@@ -178,152 +188,39 @@ class DashboardCubit extends Cubit<DashboardState> {
         monthlySpend: monthlySpend,
         yearlySpend: yearlySpend,
         biggestSubs: biggestSubscriptions,
-        biggestSubPercentage: biggestSubPercentage,
+        biggestSubPercentage: biggestSubscriptionPercentage,
       ),
     );
   }
 
   static double _getHighestAmount(List<SubscriptionModel> subscriptions) {
-    if (subscriptions.isEmpty) return 0.0;
+    if (subscriptions.isEmpty) {
+      return 0;
+    }
 
     return subscriptions
         .map((subscription) => subscription.amount)
         .reduce((current, next) => current > next ? current : next);
   }
 
-  static DateTime _getUpcomingDate(
-    SubscriptionModel subscription,
-    DateTime today,
-  ) {
-    final nextBillDate = _dateOnly(subscription.nextBillDate);
-
-    /*
-      Important case:
-
-      Your backend may send today's reminder and then immediately move
-      nextBillDate to the next billing cycle.
-
-      Example:
-      Spotify was due today.
-      Backend sends today's reminder.
-      Backend changes nextBillDate to next month.
-
-      Without this check, the UI would instantly move Spotify away from today.
-      This keeps it sorted as "today" until the day ends.
-    */
-    if (_wasTodayReminderSentToday(subscription, today) &&
-        nextBillDate.isAfter(today)) {
-      return today;
+  static List<int> _readReminderDays(dynamic value) {
+    if (value is Iterable) {
+      return value.whereType<num>().map((item) => item.toInt()).toList();
     }
 
-    /*
-      Normal case:
-
-      If nextBillDate is today or in the future, use it directly.
-      Because we already removed the time, sorting is clean.
-    */
-    if (!nextBillDate.isBefore(today)) {
-      return nextBillDate;
-    }
-
-    /*
-      Safety case:
-
-      If nextBillDate is old/past, calculate the next real upcoming billing date
-      using the billing cycle.
-
-      This protects you if Firestore has outdated nextBillDate values.
-    */
-    DateTime calculatedDate = nextBillDate;
-
-    while (calculatedDate.isBefore(today)) {
-      calculatedDate = _addBillingCycle(
-        calculatedDate,
-        subscription.billingCycle,
-      );
-    }
-
-    return calculatedDate;
-  }
-
-  static DateTime _addBillingCycle(DateTime date, String billingCycle) {
-    final cycle = billingCycle.toLowerCase().trim();
-
-    if (cycle.contains('week')) {
-      return date.add(const Duration(days: 7));
-    }
-
-    if (cycle.contains('fortnight')) {
-      return date.add(const Duration(days: 14));
-    }
-
-    if (cycle.contains('month')) {
-      return _addMonths(date, 1);
-    }
-
-    if (cycle.contains('quarter')) {
-      return _addMonths(date, 3);
-    }
-
-    if (cycle.contains('semi')) {
-      return _addMonths(date, 6);
-    }
-
-    if (cycle.contains('year')) {
-      return _addMonths(date, 12);
-    }
-
-    return _addMonths(date, 1);
-  }
-
-  static DateTime _addMonths(DateTime date, int monthsToAdd) {
-    final targetMonthDate = DateTime(date.year, date.month + monthsToAdd, 1);
-
-    final lastDayOfTargetMonth = DateTime(
-      targetMonthDate.year,
-      targetMonthDate.month + 1,
-      0,
-    ).day;
-
-    final safeDay = date.day > lastDayOfTargetMonth
-        ? lastDayOfTargetMonth
-        : date.day;
-
-    return DateTime(targetMonthDate.year, targetMonthDate.month, safeDay);
-  }
-
-  static bool _wasTodayReminderSentToday(
-    SubscriptionModel subscription,
-    DateTime today,
-  ) {
-    final lastReminderSentAt = subscription.lastReminderSentAt;
-
-    if (lastReminderSentAt == null) return false;
-
-    final sentDate = _dateOnly(lastReminderSentAt);
-
-    final todayKey =
-        '${today.year.toString().padLeft(4, '0')}-'
-        '${today.month.toString().padLeft(2, '0')}-'
-        '${today.day.toString().padLeft(2, '0')}';
-
-    final expectedReminderId = 'today_$todayKey';
-
-    return subscription.lastReminderType == 'today' &&
-        subscription.lastReminderId == expectedReminderId &&
-        sentDate == today;
+    return const [1];
   }
 
   static DateTime _readTimestamp(dynamic value) {
     if (value is Timestamp) {
-      return _dateOnly(value.toDate());
+      return value.toDate();
     }
 
     if (value is DateTime) {
-      return _dateOnly(value);
+      return value;
     }
 
-    return _dateOnly(DateTime.now());
+    return DateTime.now();
   }
 
   static DateTime? _readNullableTimestamp(dynamic value) {
@@ -344,10 +241,10 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
 
     if (value is String) {
-      return double.tryParse(value) ?? 0.0;
+      return double.tryParse(value) ?? 0;
     }
 
-    return 0.0;
+    return 0;
   }
 
   static int _readInt(dynamic value) {
@@ -364,17 +261,5 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
 
     return 0;
-  }
-
-  static DateTime _dateOnly(DateTime date) {
-    return DateTime(date.year, date.month, date.day);
-  }
-
-  @override
-  Future<void> close() async {
-    await _subscriptionStream?.cancel();
-    await _userStream?.cancel();
-
-    return super.close();
   }
 }

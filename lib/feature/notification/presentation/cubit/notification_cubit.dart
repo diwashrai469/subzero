@@ -1,12 +1,9 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
-
 import 'package:subzero/feature/notification/model/notification_model.dart';
-import 'notification_state.dart';
+import 'package:subzero/feature/notification/presentation/cubit/notification_state.dart';
 
 @injectable
 class NotificationCubit extends Cubit<NotificationState> {
@@ -14,75 +11,176 @@ class NotificationCubit extends Cubit<NotificationState> {
     load();
   }
 
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _notificationStream;
+  static const int _pageSize = 10;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  DocumentSnapshot<Map<String, dynamic>>? _lastDocument;
+
+  Query<Map<String, dynamic>> _notificationsQuery(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('notifications')
+        .orderBy('createdAt', descending: true);
+  }
 
   Future<void> load() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _auth.currentUser;
 
     if (user == null) {
-      emit(state.copyWith(loading: false, notifications: []));
+      _lastDocument = null;
+
+      emit(
+        state.copyWith(
+          loading: false,
+          loadingMore: false,
+          hasMore: false,
+          notifications: [],
+          clearError: true,
+        ),
+      );
+
       return;
     }
 
-    await _notificationStream?.cancel();
+    _lastDocument = null;
 
-    emit(state.copyWith(loading: true));
+    emit(
+      state.copyWith(
+        loading: true,
+        loadingMore: false,
+        hasMore: true,
+        notifications: [],
+        clearError: true,
+      ),
+    );
 
-    _notificationStream = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('notifications')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .listen(
-          (snapshot) {
-            final notifications = snapshot.docs
-                .map(AppNotificationModel.fromDoc)
-                .toList();
+    try {
+      final snapshot = await _notificationsQuery(
+        user.uid,
+      ).limit(_pageSize + 1).get();
 
-            emit(state.copyWith(loading: false, notifications: notifications));
-          },
-          onError: (_) {
-            emit(state.copyWith(loading: false));
-          },
-        );
+      final hasMore = snapshot.docs.length > _pageSize;
+
+      final visibleDocuments = snapshot.docs.take(_pageSize).toList();
+
+      final notifications = visibleDocuments
+          .map(AppNotificationModel.fromDoc)
+          .toList();
+
+      _lastDocument = visibleDocuments.isEmpty ? null : visibleDocuments.last;
+
+      emit(
+        state.copyWith(
+          loading: false,
+          loadingMore: false,
+          hasMore: hasMore,
+          notifications: notifications,
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          loading: false,
+          loadingMore: false,
+          hasMore: false,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    final user = _auth.currentUser;
+
+    if (user == null ||
+        state.loading ||
+        state.loadingMore ||
+        !state.hasMore ||
+        _lastDocument == null) {
+      return;
+    }
+
+    emit(state.copyWith(loadingMore: true, clearError: true));
+
+    try {
+      final snapshot = await _notificationsQuery(
+        user.uid,
+      ).startAfterDocument(_lastDocument!).limit(_pageSize + 1).get();
+
+      final hasMore = snapshot.docs.length > _pageSize;
+
+      final visibleDocuments = snapshot.docs.take(_pageSize).toList();
+
+      final newNotifications = visibleDocuments
+          .map(AppNotificationModel.fromDoc)
+          .toList();
+
+      if (visibleDocuments.isNotEmpty) {
+        _lastDocument = visibleDocuments.last;
+      }
+
+      emit(
+        state.copyWith(
+          loadingMore: false,
+          hasMore: hasMore,
+          notifications: [...state.notifications, ...newNotifications],
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      emit(state.copyWith(loadingMore: false, errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> refresh() async {
+    await load();
   }
 
   Future<void> markAllAsSeen() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _auth.currentUser;
 
     if (user == null) return;
 
-    final userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid);
+    final userRef = _firestore.collection('users').doc(user.uid);
 
-    final unreadSnapshot = await userRef
-        .collection('notifications')
-        .where('isSeen', isEqualTo: false)
-        .get();
+    try {
+      final unreadSnapshot = await userRef
+          .collection('notifications')
+          .where('isSeen', isEqualTo: false)
+          .get();
 
-    final batch = FirebaseFirestore.instance.batch();
+      final batch = _firestore.batch();
 
-    for (final doc in unreadSnapshot.docs) {
-      batch.update(doc.reference, {
-        'isSeen': true,
-        'seenAt': FieldValue.serverTimestamp(),
-      });
+      for (final document in unreadSnapshot.docs) {
+        batch.update(document.reference, {
+          'isSeen': true,
+          'seenAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      batch.set(userRef, {
+        'hasUnreadNotifications': false,
+        'unreadNotificationCount': 0,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await batch.commit();
+
+      _markLoadedNotificationsAsSeen();
+    } catch (error) {
+      emit(state.copyWith(errorMessage: error.toString()));
     }
-
-    batch.update(userRef, {
-      'hasUnreadNotifications': false,
-      'unreadNotificationCount': 0,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    await batch.commit();
   }
 
-  @override
-  Future<void> close() async {
-    await _notificationStream?.cancel();
-    return super.close();
+  void _markLoadedNotificationsAsSeen() {
+    final updatedNotifications = state.notifications
+        .map((notification) => notification.copyWith(isSeen: true))
+        .toList();
+
+    emit(state.copyWith(notifications: updatedNotifications));
   }
 }

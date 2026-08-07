@@ -1,10 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/injection/injection_service.dart';
+import 'package:subzero/core/pro/cubit/pro_cubit.dart';
+import 'package:subzero/core/pro/service/pro_services.dart';
 import 'package:subzero/core/services/firebase/fcm_service.dart';
 import 'common/constant/app_dimens.dart';
 import 'firebase_options.dart';
@@ -23,6 +26,9 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   setupLocator();
+
+  await locator<ProService>().initialize();
+  await locator<ProCubit>().loadProStatus();
 
   await FCMService.init();
 
@@ -107,16 +113,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return OKToast(
-      child: ScreenUtilInit(
-        designSize: const Size(AppDimens.appWidth, AppDimens.appHeight),
-        builder: (_, _) {
-          return MaterialApp.router(
-            theme: AppThemes.light,
-            routerConfig: locator<AppRouters>().config(),
-            debugShowCheckedModeBanner: false,
-          );
-        },
+    return BlocProvider<ProCubit>.value(
+      value: locator<ProCubit>(),
+      child: OKToast(
+        child: ScreenUtilInit(
+          designSize: const Size(AppDimens.appWidth, AppDimens.appHeight),
+          builder: (_, _) {
+            return MaterialApp.router(
+              theme: AppThemes.light,
+              routerConfig: locator<AppRouters>().config(),
+              debugShowCheckedModeBanner: false,
+            );
+          },
+        ),
       ),
     );
   }

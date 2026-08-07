@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/app_image.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/common/widgets/k_text.dart';
+import 'package:subzero/feature/dashboard/presentation/widgets/sparkle_pro_badge.dart';
 import 'package:subzero/theme/app_theme.dart';
 
 class DashboardHeader extends StatelessWidget {
@@ -12,87 +13,109 @@ class DashboardHeader extends StatelessWidget {
     required this.onProfileTap,
     required this.onNotificationTap,
     this.notificationCount = 0,
+    this.isPro = false,
   });
 
   final VoidCallback onProfileTap;
   final VoidCallback onNotificationTap;
   final int notificationCount;
+  final bool isPro;
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                AppImage.appText,
-                width: 120.w.clamp(90.0, 140.0),
-                fit: BoxFit.contain,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.asset(
+                    AppImage.appText,
+                    width: 120.w.clamp(90, 140),
+                    fit: BoxFit.contain,
+                  ),
+                  4.horizontalSpace,
+                  !isPro
+                      ? Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 4.w,
+                            vertical: 3.h,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFFE59A),
+                                Color(0xFFFFC94A),
+                                Color(0xFFF5A623),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.5.r,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFFF5A623,
+                                ).withValues(alpha: 0.28),
+                                blurRadius: 10.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: KText(
+                            text: 'Free',
+                            fontSize: 8.sp,
+                            fontWeight: FontWeight.w900,
+                            color: primaryColor,
+                            letterSpacing: 0.5,
+                          ),
+                        )
+                      : SparkleProBadge(),
+                ],
               ),
-
               8.verticalSpace,
-
-              Flexible(
-                child: KText(
-                  text: 'Your recurring spend, simplified.',
-                  fontSize: 14.sp,
-                  color: Colors.grey,
-                  maxLines: 2,
-                  textOverflow: TextOverflow.ellipsis,
-                ),
+              KText(
+                text: 'Your recurring spend, simplified.',
+                fontSize: 14.sp,
+                color: Colors.grey,
+                maxLines: 2,
+                textOverflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-
-        _CircleIconButton(
-          icon: Icons.notifications_none_rounded,
-          onTap: onNotificationTap,
-          badgeCount: notificationCount,
-        ),
-
+        _buildNotificationButton(),
         sWidthSpan,
-
         GestureDetector(
           onTap: onProfileTap,
-          child: _SmallProfileAvatar(user: user),
+          child: ProfileAvatar(user: user, size: 43.r),
         ),
       ],
     );
   }
-}
 
-class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({
-    required this.icon,
-    required this.onTap,
-    this.badgeCount = 0,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final int badgeCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasBadge = badgeCount > 0;
-    final buttonSize = 44.r;
+  Widget _buildNotificationButton() {
+    final hasBadge = notificationCount > 0;
+    final badgeText = notificationCount > 99
+        ? '99+'
+        : notificationCount.toString();
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: onNotificationTap,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            width: buttonSize,
-            height: buttonSize,
+            width: 44.r,
+            height: 44.r,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -105,7 +128,11 @@ class _CircleIconButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, size: 24.sp, color: Colors.black),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              size: 24.sp,
+              color: Colors.black,
+            ),
           ),
           if (hasBadge)
             Positioned(
@@ -116,15 +143,17 @@ class _CircleIconButton extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
                 decoration: BoxDecoration(
                   color: Colors.red,
-                  shape: badgeCount > 9 ? BoxShape.rectangle : BoxShape.circle,
-                  borderRadius: badgeCount > 9
+                  shape: notificationCount > 9
+                      ? BoxShape.rectangle
+                      : BoxShape.circle,
+                  borderRadius: notificationCount > 9
                       ? BorderRadius.circular(20.r)
                       : null,
                   border: Border.all(color: Colors.white, width: 2.r),
                 ),
                 alignment: Alignment.center,
                 child: KText(
-                  text: badgeCount > 99 ? '99+' : badgeCount.toString(),
+                  text: badgeText,
                   color: Colors.white,
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
@@ -137,105 +166,54 @@ class _CircleIconButton extends StatelessWidget {
   }
 }
 
-class _SmallProfileAvatar extends StatelessWidget {
-  const _SmallProfileAvatar({required this.user});
+class ProfileAvatar extends StatelessWidget {
+  const ProfileAvatar({
+    super.key,
+    required this.user,
+    required this.size,
+    this.showBorder = true,
+  });
 
   final User? user;
+  final double size;
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
-    final photoUrl = user?.photoURL;
-    final initial = _initial(user);
+    final photoUrl = user?.photoURL?.trim();
+    final initial = getUserInitial(user);
+    final fontSize = size * 0.4;
 
-    final avatarSize = 43.h;
-
-    return SizedBox(
-      width: avatarSize,
-      height: avatarSize,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: primaryColor,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.16),
-              blurRadius: 16.r,
-              offset: Offset(0, 8.h),
-            ),
-          ],
-        ),
-        child: ClipOval(
-          child: photoUrl != null && photoUrl.isNotEmpty
-              ? Image.network(
-                  photoUrl,
-                  width: avatarSize,
-                  height: avatarSize,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) {
-                    return _InitialAvatar(initial: initial, fontSize: 18.sp);
-                  },
-                )
-              : _InitialAvatar(initial: initial, fontSize: 18.sp),
-        ),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: primaryColor,
+        shape: BoxShape.circle,
+        border: showBorder ? Border.all(color: Colors.white, width: 2.r) : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: size * 0.3,
+            offset: Offset(0, size * 0.16),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: photoUrl != null && photoUrl.isNotEmpty
+            ? Image.network(
+                photoUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) {
+                  return _buildInitial(initial, fontSize);
+                },
+              )
+            : _buildInitial(initial, fontSize),
       ),
     );
   }
-}
 
-class LargeProfileAvatar extends StatelessWidget {
-  const LargeProfileAvatar({super.key, required this.user});
-
-  final User? user;
-
-  @override
-  Widget build(BuildContext context) {
-    final photoUrl = user?.photoURL;
-    final initial = _initial(user);
-
-    final avatarSize = 84.r;
-
-    return SizedBox(
-      width: avatarSize,
-      height: avatarSize,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: primaryColor,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.16),
-              blurRadius: 22.r,
-              offset: Offset(0, 10.h),
-            ),
-          ],
-        ),
-        child: ClipOval(
-          child: photoUrl != null && photoUrl.isNotEmpty
-              ? Image.network(
-                  photoUrl,
-                  width: avatarSize,
-                  height: avatarSize,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) {
-                    return _InitialAvatar(initial: initial, fontSize: 32.sp);
-                  },
-                )
-              : _InitialAvatar(initial: initial, fontSize: 32.sp),
-        ),
-      ),
-    );
-  }
-}
-
-class _InitialAvatar extends StatelessWidget {
-  const _InitialAvatar({required this.initial, required this.fontSize});
-
-  final String initial;
-  final double fontSize;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildInitial(String initial, double fontSize) {
     return Center(
       child: KText(
         text: initial,
@@ -247,33 +225,53 @@ class _InitialAvatar extends StatelessWidget {
   }
 }
 
-String _initial(User? user) {
+String getUserInitial(User? user) {
   final name = user?.displayName?.trim();
   final email = user?.email?.trim();
+  final value = name?.isNotEmpty == true ? name : email;
 
-  if (name != null && name.isNotEmpty) {
-    return name[0].toUpperCase();
-  }
-
-  if (email != null && email.isNotEmpty) {
-    return email[0].toUpperCase();
-  }
-
-  return 'U';
+  return value?.isNotEmpty == true ? value![0].toUpperCase() : 'U';
 }
 
 String displayName(User? user) {
   final name = user?.displayName?.trim();
 
-  if (name != null && name.isNotEmpty) {
-    return name;
+  if (name?.isNotEmpty == true) {
+    return name!;
   }
 
   final email = user?.email?.trim();
 
-  if (email != null && email.isNotEmpty) {
-    return email.split('@').first;
+  if (email?.isNotEmpty == true) {
+    return email!.split('@').first;
   }
 
   return 'SubZero User';
+}
+
+Widget freeText() {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [Color(0xFFFFE59A), Color(0xFFFFC94A), Color(0xFFF5A623)],
+      ),
+      borderRadius: BorderRadius.circular(8.r),
+      border: Border.all(color: Colors.white, width: 1.5.r),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFFF5A623).withValues(alpha: 0.28),
+          blurRadius: 10.r,
+          offset: Offset(0, 4.h),
+        ),
+      ],
+    ),
+    child: KText(
+      text: 'Free',
+      fontSize: 8.sp,
+      fontWeight: FontWeight.w900,
+      color: primaryColor,
+      letterSpacing: 0.5,
+    ),
+  );
 }

@@ -9,8 +9,8 @@ import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/feature/add_subscription/presentation/constant/add_sub_constants.dart';
+import 'package:subzero/feature/dashboard/helper/dashboard_helper.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
-import 'package:subzero/feature/dashboard/presentation/widgets/dashboard_helpers.dart';
 import 'package:subzero/feature/dashboard/presentation/widgets/delete_sub_dialog.dart';
 import 'package:subzero/theme/app_theme.dart';
 
@@ -59,7 +59,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final dueText = dueTextHelper(widget.sub);
+    final dueText = DashboardHelper().dueTextHelper(widget.sub);
 
     final isUrgent =
         dueText == 'Due today' ||
@@ -257,7 +257,7 @@ class _SubRowState extends State<SubRow> with SingleTickerProviderStateMixin {
                                     widget.sub.amount,
                                     widget.sub.currency,
                                   ),
-                                  fontSize: isSmallScreen ? 12.sp : 14.5.sp,
+                                  fontSize: isSmallScreen ? 12.sp : 15.5.sp,
                                   fontWeight: FontWeight.w600,
                                   maxLines: 1,
                                 ),

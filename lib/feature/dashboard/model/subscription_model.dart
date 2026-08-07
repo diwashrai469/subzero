@@ -10,6 +10,9 @@ class SubscriptionModel {
   final String category;
   final String? cancelUrl;
   final double totalTillDate;
+  final DateTime? lastChargedAt;
+
+  final List<int> reminderDays;
 
   final String? lastReminderType;
   final String? lastReminderId;
@@ -20,16 +23,18 @@ class SubscriptionModel {
     required this.name,
     required this.amount,
     required this.currency,
+    required this.currencyCode,
     required this.firstBillDate,
     required this.nextBillDate,
     required this.billingCycle,
     required this.category,
+    required this.totalTillDate,
     this.cancelUrl,
+    this.reminderDays = const [1],
     this.lastReminderType,
     this.lastReminderId,
     this.lastReminderSentAt,
-    required this.totalTillDate,
-    required this.currencyCode,
+    this.lastChargedAt,
   });
 
   SubscriptionModel copyWith({
@@ -37,31 +42,35 @@ class SubscriptionModel {
     String? name,
     double? amount,
     String? currency,
+    String? currencyCode,
     DateTime? firstBillDate,
     DateTime? nextBillDate,
     String? billingCycle,
     String? category,
     String? cancelUrl,
+    double? totalTillDate,
+    List<int>? reminderDays,
     String? lastReminderType,
     String? lastReminderId,
     DateTime? lastReminderSentAt,
-    double? totalTillDate,
   }) {
     return SubscriptionModel(
       id: id ?? this.id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
+      currencyCode: currencyCode ?? this.currencyCode,
       firstBillDate: firstBillDate ?? this.firstBillDate,
       nextBillDate: nextBillDate ?? this.nextBillDate,
       billingCycle: billingCycle ?? this.billingCycle,
       category: category ?? this.category,
       cancelUrl: cancelUrl ?? this.cancelUrl,
+      totalTillDate: totalTillDate ?? this.totalTillDate,
+      reminderDays: reminderDays ?? this.reminderDays,
       lastReminderType: lastReminderType ?? this.lastReminderType,
       lastReminderId: lastReminderId ?? this.lastReminderId,
       lastReminderSentAt: lastReminderSentAt ?? this.lastReminderSentAt,
-      totalTillDate: totalTillDate ?? this.totalTillDate,
-      currencyCode: '',
+      lastChargedAt: lastChargedAt ?? lastChargedAt,
     );
   }
 }

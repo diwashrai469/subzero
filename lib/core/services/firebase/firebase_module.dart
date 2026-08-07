@@ -75,7 +75,7 @@ class SubscriptionFirebaseService {
     required DateTime firstBillDate,
     required DateTime nextBillDate,
     required double totalTillDate,
-
+    required List<int> reminderDays,
     String? cancelUrl,
   }) async {
     try {
@@ -100,6 +100,7 @@ class SubscriptionFirebaseService {
         'category': category,
         'firstBillDate': Timestamp.fromDate(firstBillDate),
         'nextBillDate': Timestamp.fromDate(nextBillDate),
+        'reminderDays': reminderDays,
         'cancelUrl': cancelUrl,
         if (!snapshot.exists) 'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),

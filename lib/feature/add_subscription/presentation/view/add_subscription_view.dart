@@ -16,13 +16,15 @@ import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_cy
 import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_date_field.dart';
 import 'package:subzero/feature/add_subscription/presentation/widgets/add_sub_textfield.dart';
 import 'package:subzero/feature/add_subscription/presentation/widgets/currency_picker_sheet.dart';
+import 'package:subzero/feature/add_subscription/presentation/widgets/reminder_selector.dart';
 import 'package:subzero/feature/dashboard/model/subscription_model.dart';
 
 @RoutePage()
 class AddSubscriptionView extends StatefulWidget {
   final SubscriptionModel? existingSub;
+  final int? subCount;
 
-  const AddSubscriptionView({super.key, this.existingSub});
+  const AddSubscriptionView({super.key, this.existingSub, this.subCount});
 
   @override
   State<AddSubscriptionView> createState() => _AddSubscriptionViewState();
@@ -59,7 +61,8 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
       ..setCurrency(sub.currencyCode)
       ..setCycle(sub.billingCycle)
       ..setCategory(sub.category)
-      ..setDate(sub.firstBillDate);
+      ..setDate(sub.firstBillDate)
+      ..setReminderDays(sub.reminderDays);
   }
 
   @override
@@ -103,7 +106,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                 children: [
                   sHeightSpan,
                   _sectionCard(
-                    title: 'Subscription details',
+                    title: 'Subscription Details',
                     subtitle: 'Enter the service name and amount.',
                     children: [
                       _fieldLabel('Name'),
@@ -126,7 +129,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
                   mHeightSpan,
 
                   _sectionCard(
-                    title: 'Billing schedule',
+                    title: 'Billing Schedule',
                     subtitle: 'Choose the first bill date and repeat cycle.',
                     children: [
                       _fieldLabel('First billing date'),
@@ -137,8 +140,14 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
 
                       mHeightSpan,
 
-                      _fieldLabel('Billing cycle'),
+                      _fieldLabel('Billing Cycle'),
                       addSubCycleSelector(state: state, cubit: cubit),
+                      mHeightSpan,
+                      addSubReminderSelector(
+                        context: context,
+                        cubit: cubit,
+                        state: state,
+                      ),
                     ],
                   ),
 
@@ -158,6 +167,7 @@ class _AddSubscriptionViewState extends State<AddSubscriptionView> {
 
                   lHeightSpan,
                   saveButton(
+                    subCount: widget.subCount,
                     state: state,
                     context: context,
                     isEditing: isEditing,

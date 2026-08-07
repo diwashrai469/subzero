@@ -13,6 +13,7 @@ import flutter_local_notifications
 import flutter_secure_storage_darwin
 import flutter_timezone
 import google_sign_in_ios
+import purchases_flutter
 import sign_in_with_apple
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
@@ -24,5 +25,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
   FlutterTimezonePlugin.register(with: registry.registrar(forPlugin: "FlutterTimezonePlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
+  PurchasesFlutterPlugin.register(with: registry.registrar(forPlugin: "PurchasesFlutterPlugin"))
   SignInWithApplePlugin.register(with: registry.registrar(forPlugin: "SignInWithApplePlugin"))
 }

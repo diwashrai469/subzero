@@ -37,6 +37,7 @@ class AppImage {
   static const String status = 'assets/sub_info/status.png';
 
   static const String logout = 'assets/logout.png';
+  static const String pro = 'assets/pro.png';
 
   //image height
   static final double llogoHeight = 130.h;

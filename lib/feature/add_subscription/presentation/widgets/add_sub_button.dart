@@ -12,6 +12,7 @@ Widget saveButton({
   required bool isEditing,
   required AddSubCubit cubit,
   String? existingId,
+  int? subCount = 0,
 }) {
   final isLoading = state.isLoading;
 
@@ -22,7 +23,7 @@ Widget saveButton({
           ? null
           : () {
               FocusScope.of(context).unfocus();
-              cubit.save(existingId: existingId);
+              cubit.save(existingId: existingId, subCount: subCount);
             },
       borderRadius: BorderRadius.circular(18.r),
       child: AnimatedContainer(

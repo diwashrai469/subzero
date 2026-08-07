@@ -28,19 +28,47 @@ class AppNotificationModel {
 
     return AppNotificationModel(
       id: doc.id,
-      title: data['title'] ?? 'Notification',
-      body: data['body'] ?? '',
-      category: data['category'] ?? 'Others',
-      type: data['type'] ?? 'general',
-      isSeen: data['isSeen'] ?? false,
+      title: data['title'] as String? ?? 'Notification',
+      body: data['body'] as String? ?? '',
+      category: data['category'] as String? ?? 'Others',
+      type: data['type'] as String? ?? 'general',
+      isSeen: data['isSeen'] as bool? ?? false,
       createdAt: _readTimestamp(data['createdAt']),
-      subscriptionId: data['subscriptionId'],
+      subscriptionId: data['subscriptionId'] as String?,
+    );
+  }
+
+  AppNotificationModel copyWith({
+    String? id,
+    String? title,
+    String? body,
+    String? type,
+    String? category,
+    bool? isSeen,
+    DateTime? createdAt,
+    String? subscriptionId,
+  }) {
+    return AppNotificationModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      isSeen: isSeen ?? this.isSeen,
+      createdAt: createdAt ?? this.createdAt,
+      subscriptionId: subscriptionId ?? this.subscriptionId,
     );
   }
 
   static DateTime _readTimestamp(dynamic value) {
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
     return DateTime.now();
   }
 }

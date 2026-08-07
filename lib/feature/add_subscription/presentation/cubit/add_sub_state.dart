@@ -8,6 +8,8 @@ class AddSubState {
   final bool isLoading;
   final double totalTillDate;
 
+  final List<int> reminderDays;
+
   const AddSubState({
     this.name = '',
     this.amount = '',
@@ -17,6 +19,7 @@ class AddSubState {
     this.totalTillDate = 0.0,
     this.firstBillDate,
     this.isLoading = false,
+    this.reminderDays = const [1],
   });
 
   AddSubState copyWith({
@@ -28,6 +31,7 @@ class AddSubState {
     DateTime? firstBillDate,
     bool? isLoading,
     double? totalTillDate,
+    List<int>? reminderDays,
   }) {
     return AddSubState(
       name: name ?? this.name,
@@ -38,6 +42,7 @@ class AddSubState {
       firstBillDate: firstBillDate ?? this.firstBillDate,
       isLoading: isLoading ?? this.isLoading,
       totalTillDate: totalTillDate ?? this.totalTillDate,
+      reminderDays: reminderDays ?? this.reminderDays,
     );
   }
 }
