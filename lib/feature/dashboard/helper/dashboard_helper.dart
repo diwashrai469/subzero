@@ -87,16 +87,31 @@ class DashboardHelper {
   DateTime effectiveDueDate(SubscriptionModel subscription) {
     final today = dateOnly(DateTime.now());
 
+    // Keep a subscription in "Today" if it was charged today.
     if (wasChargedToday(subscription)) {
       return today;
     }
 
-    return dateOnly(subscription.nextBillDate);
+    var dueDate = dateOnly(subscription.nextBillDate);
+
+    // Already upcoming — nothing else needed.
+    if (!dueDate.isBefore(today)) {
+      return dueDate;
+    }
+
+    // nextBillDate is stale/past.
+    // Move it forward until we reach the next upcoming billing date.
+    while (dueDate.isBefore(today)) {
+      dueDate = _nextBillingDate(dueDate, subscription.billingCycle);
+    }
+
+    return dueDate;
   }
 
   String dueTextHelper(SubscriptionModel subscription) {
     final today = dateOnly(DateTime.now());
     final dueDate = effectiveDueDate(subscription);
+
     final difference = dueDate.difference(today).inDays;
 
     if (difference == 0) {
@@ -107,10 +122,59 @@ class DashboardHelper {
       return 'Due tomorrow';
     }
 
-    if (difference < 0) {
-      return 'Overdue';
-    }
-
     return 'Due in ${difference}d';
+  }
+
+  DateTime _nextBillingDate(DateTime currentDate, String billingCycle) {
+    switch (billingCycle.trim().toLowerCase()) {
+      case 'daily':
+        return currentDate.add(const Duration(days: 1));
+
+      case 'weekly':
+        return currentDate.add(const Duration(days: 7));
+
+      case 'fortnightly':
+        return currentDate.add(const Duration(days: 14));
+
+      case 'monthly':
+        return _addMonths(currentDate, 1);
+
+      case 'quarterly':
+        return _addMonths(currentDate, 3);
+
+      case 'semi-annually':
+      case 'semi annually':
+      case 'semiannual':
+      case 'semi-annual':
+        return _addMonths(currentDate, 6);
+
+      case 'yearly':
+        return _addMonths(currentDate, 12);
+
+      default:
+        return _addMonths(currentDate, 1);
+    }
+  }
+
+  DateTime _addMonths(DateTime date, int months) {
+    final targetMonth = date.month + months;
+
+    final firstDayOfTargetMonth = DateTime(date.year, targetMonth, 1);
+
+    final lastDayOfTargetMonth = DateTime(
+      firstDayOfTargetMonth.year,
+      firstDayOfTargetMonth.month + 1,
+      0,
+    ).day;
+
+    final targetDay = date.day > lastDayOfTargetMonth
+        ? lastDayOfTargetMonth
+        : date.day;
+
+    return DateTime(
+      firstDayOfTargetMonth.year,
+      firstDayOfTargetMonth.month,
+      targetDay,
+    );
   }
 }

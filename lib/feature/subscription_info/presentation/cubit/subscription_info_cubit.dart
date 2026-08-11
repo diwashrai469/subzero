@@ -178,28 +178,4 @@ class SubscriptionInfoCubit extends Cubit<SubscriptionInfoState> {
 
     return const Color(0xFF22C55E);
   }
-
-  static String billingMessage(int days) {
-    if (days < 0) {
-      final overdueDays = days.abs();
-
-      if (overdueDays == 1) return 'Overdue by 1 day';
-      return 'Overdue by $overdueDays days';
-    }
-
-    if (days == 0) return 'Billing today';
-    if (days == 1) return 'Billing tomorrow';
-    if (days <= 3) return 'Billing very soon';
-    if (days <= 7) return 'Billing this week';
-
-    return 'Next billing in $days days';
-  }
-
-  // ─────────────────────────────────────────────
-  // Refresh after editing
-  // ─────────────────────────────────────────────
-
-  void refresh(SubscriptionModel updated) {
-    emit(_buildState(updated));
-  }
 }
