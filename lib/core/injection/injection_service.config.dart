@@ -53,6 +53,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i437.AuthFirebaseService>(() => _i437.AuthFirebaseService(
           gh<_i59.FirebaseAuth>(),
           gh<_i974.FirebaseFirestore>(),
+          gh<_i686.ProService>(),
+          gh<_i706.ProCubit>(),
         ));
     gh.factory<_i156.SubscriptionFirebaseService>(
         () => _i156.SubscriptionFirebaseService(

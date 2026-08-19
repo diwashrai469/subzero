@@ -124,7 +124,11 @@ class DashboardView extends StatelessWidget {
                         emptyState()
                       else
                         SliverPadding(
-                          padding: EdgeInsets.symmetric(horizontal: 14.w),
+                          padding: EdgeInsets.only(
+                            left: 14.w,
+                            right: 14.w,
+                            bottom: 24.h,
+                          ),
                           sliver: SliverList.separated(
                             itemCount: state.allSubs.length,
                             separatorBuilder: (_, _) => sHeightSpan,

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:subzero/common/constant/ui_helpers.dart';
 
 import 'package:subzero/common/widgets/k_text.dart';
@@ -112,12 +113,12 @@ Future<void> logout(BuildContext context) async {
     } catch (error) {
       debugPrint('⚠️ Google signOut failed: $error');
     }
+  }
 
-    try {
-      await GoogleSignIn().disconnect();
-    } catch (error) {
-      debugPrint('⚠️ Google disconnect failed: $error');
-    }
+  try {
+    await Purchases.logOut();
+  } catch (error) {
+    debugPrint('⚠️ RevenueCat signOut failed: $error');
   }
 
   try {

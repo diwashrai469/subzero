@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -12,8 +13,15 @@ class ProService {
 
     if (Platform.isIOS) {
       final configuration = PurchasesConfiguration(ProConstants.iosApiKey);
+
       await Purchases.configure(configuration);
     }
+  }
+
+  Future<void> login(String firebaseUid) async {
+    await Purchases.logIn(firebaseUid);
+
+    debugPrint('RevenueCat logged in as: $firebaseUid');
   }
 
   Future<bool> isPro() async {

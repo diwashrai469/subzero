@@ -28,7 +28,6 @@ Future<void> main() async {
   setupLocator();
 
   await locator<ProService>().initialize();
-  await locator<ProCubit>().loadProStatus();
 
   await FCMService.init();
 

@@ -7,7 +7,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:subzero/core/pro/cubit/pro_cubit.dart';
+import 'package:subzero/core/pro/service/pro_services.dart';
 
 import 'package:subzero/core/services/firebase/fcm_service.dart';
 
@@ -15,10 +18,12 @@ enum SubzeroAuthResult { signedIn, failed, cancelled }
 
 @lazySingleton
 class AuthFirebaseService {
-  AuthFirebaseService(this._auth, this._db);
+  AuthFirebaseService(this._auth, this._db, this._proService, this._proCubit);
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _db;
+  final ProService _proService;
+  final ProCubit _proCubit;
 
   Future<SubzeroAuthResult> signInWithGoogle() async {
     try {
@@ -130,12 +135,17 @@ class AuthFirebaseService {
       debugPrint('⚠️ Google sign-out failed: $e');
     }
 
+    await Purchases.logOut();
+
     await _auth.signOut();
   }
 
   Future<void> _afterSuccessfulSignIn(User user) async {
     await _upsertUserDocument(user);
     await FCMService.saveTokenForCurrentUser();
+
+    await _proService.login(user.uid);
+    await _proCubit.loadProStatus();
   }
 
   Future<void> _updateAppleDisplayNameIfNeeded({
