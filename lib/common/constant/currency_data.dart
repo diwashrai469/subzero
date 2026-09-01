@@ -1,4 +1,3 @@
-// lib/common/utils/locale_currency.dart
 import 'dart:io';
 
 String getLocaleCurrency() {

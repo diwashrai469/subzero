@@ -16,6 +16,7 @@ import 'dashboard_state.dart';
 @injectable
 class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit(this._firebase) : super(const DashboardState()) {
+    _listenToAuthState();
     load();
   }
 
@@ -25,19 +26,86 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userStream;
 
+  StreamSubscription<User?>? _authStream;
+
+  // ---------------------------------------------------------------------------
+  // LOAD
+  // ---------------------------------------------------------------------------
+
   Future<void> load() async {
     await _subscriptionStream?.cancel();
     await _userStream?.cancel();
 
     emit(state.copyWith(loading: true));
 
+    // Don't create Firestore listeners if nobody is authenticated.
+    if (FirebaseAuth.instance.currentUser == null) {
+      emit(
+        state.copyWith(
+          loading: false,
+          allSubs: const [],
+          notificationCount: 0,
+          biggestSubs: const [],
+          biggestSubPercentage: 0,
+        ),
+      );
+
+      return;
+    }
+
     _listenToSubscriptions();
     _listenToUserNotificationCount();
   }
 
+  // ---------------------------------------------------------------------------
+  // AUTH STATE
+  // ---------------------------------------------------------------------------
+
+  void _listenToAuthState() {
+    _authStream = FirebaseAuth.instance.authStateChanges().listen(
+      (user) async {
+        if (user == null) {
+          debugPrint(
+            '🔐 Firebase user signed out. '
+            'Stopping dashboard Firestore listeners.',
+          );
+
+          await stopListening();
+
+          if (isClosed) return;
+
+          emit(
+            state.copyWith(
+              loading: false,
+              allSubs: const [],
+              monthlySpend: 0,
+              yearlySpend: 0,
+              biggestSubs: const [],
+              biggestSubPercentage: 0,
+              notificationCount: 0,
+            ),
+          );
+
+          return;
+        }
+
+        debugPrint('🔐 Firebase user authenticated: ${user.uid}');
+      },
+      onError: (error) {
+        debugPrint('❌ Failed to listen to Firebase auth state: $error');
+      },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // SUBSCRIPTIONS
+  // ---------------------------------------------------------------------------
+
   void _listenToSubscriptions() {
     _subscriptionStream = _firebase.subscriptionStream().listen(
       (snapshot) {
+        if (isClosed) return;
+
         final subscriptions = snapshot.docs.map(_mapSubscription).toList();
 
         _process(subscriptions);
@@ -45,16 +113,25 @@ class DashboardCubit extends Cubit<DashboardState> {
       onError: (error) {
         debugPrint('Failed to listen to subscriptions: $error');
 
+        if (isClosed) return;
+
         emit(state.copyWith(loading: false));
       },
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // NOTIFICATION COUNT
+  // ---------------------------------------------------------------------------
+
   void _listenToUserNotificationCount() {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      emit(state.copyWith(notificationCount: 0));
+      if (!isClosed) {
+        emit(state.copyWith(notificationCount: 0));
+      }
+
       return;
     }
 
@@ -64,6 +141,8 @@ class DashboardCubit extends Cubit<DashboardState> {
         .snapshots()
         .listen(
           (snapshot) {
+            if (isClosed) return;
+
             final data = snapshot.data();
 
             final unreadCount = _readInt(data?['unreadNotificationCount']);
@@ -73,10 +152,16 @@ class DashboardCubit extends Cubit<DashboardState> {
           onError: (error) {
             debugPrint('Failed to listen to notification count: $error');
 
+            if (isClosed) return;
+
             emit(state.copyWith(notificationCount: 0));
           },
         );
   }
+
+  // ---------------------------------------------------------------------------
+  // NOTIFICATIONS
+  // ---------------------------------------------------------------------------
 
   Future<void> markAllNotificationsAsSeen() async {
     try {
@@ -122,6 +207,10 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // MAP SUBSCRIPTION
+  // ---------------------------------------------------------------------------
+
   SubscriptionModel _mapSubscription(
     QueryDocumentSnapshot<Map<String, dynamic>> document,
   ) {
@@ -147,7 +236,13 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // PROCESS DATA
+  // ---------------------------------------------------------------------------
+
   void _process(List<SubscriptionModel> subscriptions) {
+    if (isClosed) return;
+
     final helper = DashboardHelper();
 
     final sortedSubscriptions = List<SubscriptionModel>.from(subscriptions)
@@ -192,6 +287,10 @@ class DashboardCubit extends Cubit<DashboardState> {
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
 
   static double _getHighestAmount(List<SubscriptionModel> subscriptions) {
     if (subscriptions.isEmpty) {
@@ -261,5 +360,31 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
 
     return 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // STOP LISTENING
+  // ---------------------------------------------------------------------------
+
+  Future<void> stopListening() async {
+    await _subscriptionStream?.cancel();
+    await _userStream?.cancel();
+
+    _subscriptionStream = null;
+    _userStream = null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // CLOSE
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<void> close() async {
+    await _authStream?.cancel();
+    _authStream = null;
+
+    await stopListening();
+
+    return super.close();
   }
 }

@@ -8,6 +8,8 @@ import 'package:subzero/common/constant/ui_helpers.dart';
 import 'package:subzero/core/app_routers/app_routers.dart';
 import 'package:subzero/core/app_routers/app_routers.gr.dart';
 import 'package:subzero/core/injection/injection_service.dart';
+import 'package:subzero/core/pro/cubit/pro_cubit.dart';
+import 'package:subzero/core/pro/service/pro_services.dart';
 import 'package:subzero/core/services/firebase/fcm_service.dart';
 import 'package:subzero/core/services/toast/toast_service.dart';
 import 'package:subzero/feature/login/presentation/constant/auth_constants.dart';
@@ -30,6 +32,8 @@ class AuthGateView extends StatefulWidget {
 
 class _AuthGateViewState extends State<AuthGateView>
     with SingleTickerProviderStateMixin {
+  final ProService _proService = locator<ProService>();
+  final ProCubit _proCubit = locator<ProCubit>();
   final AppRouters _appRoutes = locator<AppRouters>();
   final ToastService _toast = locator<ToastService>();
   final AuthFirebaseService _authService = locator<AuthFirebaseService>();
@@ -101,12 +105,31 @@ class _AuthGateViewState extends State<AuthGateView>
     }
 
     try {
-      await FCMService.saveTokenForCurrentUser();
-    } catch (error) {
-      debugPrint('⚠️ Failed to save FCM token during auth check: $error');
-    }
+      await user.reload();
 
-    return true;
+      final refreshedUser = FirebaseAuth.instance.currentUser;
+
+      if (refreshedUser == null) {
+        return false;
+      }
+
+      await FCMService.saveTokenForCurrentUser();
+
+      await _proService.login(refreshedUser.uid);
+      await _proCubit.loadProStatus();
+
+      return true;
+    } on FirebaseAuthException catch (error) {
+      debugPrint('❌ Firebase user is no longer valid: ${error.code}');
+
+      await FirebaseAuth.instance.signOut();
+
+      return false;
+    } catch (error) {
+      debugPrint('❌ Failed to validate Firebase user: $error');
+
+      return false;
+    }
   }
 
   Future<void> _handleAppleSignIn() async {

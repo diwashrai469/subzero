@@ -29,6 +29,28 @@ class SubscriptionFirebaseService {
     return user.uid;
   }
 
+  Future<void> removeFcmToken(String token) async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        debugPrint('⚠️ Cannot remove FCM token because no user is signed in.');
+        return;
+      }
+
+      await _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('fcmTokens')
+          .doc(token)
+          .delete();
+
+      debugPrint('🗑️ FCM token removed for user: ${user.uid}');
+    } catch (e) {
+      debugPrint('❌ removeFcmToken error: $e');
+    }
+  }
+
   Future<void> saveFcmToken(String token) async {
     try {
       final user = _auth.currentUser;
@@ -96,12 +118,15 @@ class SubscriptionFirebaseService {
         'currency': currency,
         'currencyCode': currencyCode,
         'billingCycle': billingCycle,
-        'totalTillDate': totalTillDate,
         'category': category,
         'firstBillDate': Timestamp.fromDate(firstBillDate),
         'nextBillDate': Timestamp.fromDate(nextBillDate),
         'reminderDays': reminderDays,
         'cancelUrl': cancelUrl,
+
+        // Only set totalTillDate when creating a new subscription.
+        if (!snapshot.exists) 'totalTillDate': totalTillDate,
+
         if (!snapshot.exists) 'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));

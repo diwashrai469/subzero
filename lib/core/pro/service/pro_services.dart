@@ -19,9 +19,16 @@ class ProService {
   }
 
   Future<void> login(String firebaseUid) async {
-    await Purchases.logIn(firebaseUid);
+    final result = await Purchases.logIn(firebaseUid);
 
     debugPrint('RevenueCat logged in as: $firebaseUid');
+    debugPrint('RevenueCat created: ${result.created}');
+  }
+
+  Future<void> logout() async {
+    await Purchases.logOut();
+
+    debugPrint('RevenueCat logged out');
   }
 
   Future<bool> isPro() async {
@@ -34,18 +41,6 @@ class ProService {
 
   Future<bool> purchaseLifetime() async {
     try {
-      await Purchases.invalidateCustomerInfoCache();
-
-      final currentCustomerInfo = await Purchases.getCustomerInfo();
-
-      final alreadyPro = currentCustomerInfo.entitlements.active.containsKey(
-        ProConstants.entitlementId,
-      );
-
-      if (alreadyPro) {
-        throw StateError('This Apple account already owns SubZero Pro.');
-      }
-
       final offerings = await Purchases.getOfferings();
       final lifetimePackage = offerings.current?.lifetime;
 

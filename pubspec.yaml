@@ -44,6 +44,8 @@ dependencies:
   flutter_app_badge_control: ^0.0.2
   timezone: ^0.10.1
   purchases_flutter: ^10.4.3
+  cloud_functions: ^6.4.0
+
 
 
 

@@ -5,7 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:subzero/common/constant/app_image.dart';
+import 'package:subzero/core/app_routers/app_routers.dart';
+import 'package:subzero/core/injection/injection_service.dart';
 import 'package:subzero/core/pro/cubit/pro_cubit.dart';
+import 'package:subzero/core/services/toast/toast_service.dart';
 
 class UpgradeToProView extends StatefulWidget {
   final VoidCallback? onTermsPressed;
@@ -59,79 +62,275 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
   Future<void> _handleUpgrade() async {
     if (_isPurchasing) return;
 
-    setState(() => _isPurchasing = true);
-    final proCubit = context.read<ProCubit>();
+    final confirmed = await _showPurchaseConfirmationDialog();
 
-    // Allow Flutter to render the loading indicator before starting
-    // the RevenueCat purchase process.
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    setState(() {
+      _isPurchasing = true;
+    });
+
     await WidgetsBinding.instance.endOfFrame;
 
     HapticFeedback.mediumImpact();
 
     try {
-      final purchased = await proCubit.purchaseLifetime();
+      final purchased = await context.read<ProCubit>().purchaseLifetime();
 
       if (!mounted) return;
 
       if (!purchased) {
-        _showMessage(message: 'Purchase was cancelled.', isSuccess: false);
+        locator<ToastService>().e('Purchase was cancelled.');
         return;
       }
 
-      _showMessage(message: 'Welcome to SubZero Pro!', isSuccess: true);
-
-      Navigator.of(context).pop(true);
+      locator<AppRouters>().popForced();
     } catch (error) {
       if (!mounted) return;
 
-      _showMessage(
-        message: 'Purchase could not be completed. Please try again.',
-        isSuccess: false,
+      debugPrint('❌ Lifetime purchase failed: $error');
+
+      locator<ToastService>().e(
+        'Purchase could not be completed. Please try again.',
       );
     } finally {
       if (mounted) {
-        setState(() => _isPurchasing = false);
+        setState(() {
+          _isPurchasing = false;
+        });
       }
     }
   }
 
-  void _showMessage({required String message, required bool isSuccess}) {
-    final messenger = ScaffoldMessenger.of(context);
-
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(16.r),
-          backgroundColor: isSuccess
-              ? const Color(0xFF0F766E)
-              : const Color(0xFFB42318),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.r),
-          ),
-          content: Row(
-            children: [
-              Icon(
-                isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
-                color: Colors.white,
-                size: 21.sp,
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Text(
-                  message,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+  Future<bool?> _showPurchaseConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: 22.w),
+          child: Container(
+            padding: EdgeInsets.all(22.r),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.14),
+                  blurRadius: 30,
+                  offset: const Offset(0, 16),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 62.r,
+                  height: 62.r,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEFF6FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.workspace_premium_rounded,
+                    size: 32.sp,
+                    color: const Color(0xFF175CD3),
                   ),
                 ),
-              ),
-            ],
+
+                SizedBox(height: 16.h),
+
+                Text(
+                  'Before you continue',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                    color: const Color(0xFF101828),
+                  ),
+                ),
+
+                SizedBox(height: 8.h),
+
+                Text(
+                  'Your purchase will use the Apple Account currently signed in on this device.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF667085),
+                  ),
+                ),
+
+                SizedBox(height: 18.h),
+
+                _infoRow(
+                  icon: Icons.payments_outlined,
+                  title: 'Already purchased?',
+                  description:
+                      'If this Apple Account already owns SubZero Pro, you should not be charged again.',
+                ),
+
+                SizedBox(height: 10.h),
+
+                _infoRow(
+                  icon: Icons.swap_horiz_rounded,
+                  title: 'Pro access may transfer',
+                  description:
+                      'If the purchase is linked to another SubZero account, Pro access may move to this account.',
+                ),
+
+                SizedBox(height: 10.h),
+
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(14.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8EB),
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: const Color(0xFFFFE0A3)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 19.sp,
+                        color: const Color(0xFFB54708),
+                      ),
+                      SizedBox(width: 9.w),
+                      Expanded(
+                        child: Text(
+                          'If Pro is transferred, the previous SubZero account may no longer have Pro access.',
+                          style: TextStyle(
+                            fontSize: 11.5.sp,
+                            height: 1.45,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF7A2E0E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 22.h),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 48.h,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(false);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF344054),
+                            side: const BorderSide(color: Color(0xFFD0D5DD)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.r),
+                            ),
+                          ),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: SizedBox(
+                        height: 48.h,
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(true);
+                          },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF175CD3),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.r),
+                            ),
+                          ),
+                          child: const Text(
+                            'Continue',
+                            style: TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      },
+    );
+  }
+
+  Widget _infoRow({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE7ECF4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36.r,
+            height: 36.r,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(11.r),
+            ),
+            child: Icon(icon, size: 20.sp, color: const Color(0xFF175CD3)),
+          ),
+          SizedBox(width: 11.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF101828),
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF667085),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -320,104 +519,81 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
           ),
         ],
       ),
-      child: Stack(
+      child: Column(
         children: [
-          Positioned(
-            top: -45.h,
-            right: -40.w,
-            child: _DecorativeCircle(
-              size: 140.r,
-              color: Colors.white.withValues(alpha: 0.06),
-            ),
-          ),
-          Positioned(
-            bottom: -60.h,
-            left: -40.w,
-            child: _DecorativeCircle(
-              size: 125.r,
-              color: const Color(0xFF46C8F5).withValues(alpha: 0.08),
-            ),
-          ),
-          Column(
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD166),
-                      borderRadius: BorderRadius.circular(30.r),
-                    ),
-                    child: Text(
-                      'LIFETIME ACCESS',
-                      style: TextStyle(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.7,
-                        color: const Color(0xFF5C4300),
-                      ),
-                    ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFD166),
+                  borderRadius: BorderRadius.circular(30.r),
+                ),
+                child: Text(
+                  'LIFETIME ACCESS',
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.7,
+                    color: const Color(0xFF5C4300),
                   ),
-                  const Spacer(),
-                  Icon(
-                    Icons.verified_rounded,
-                    color: const Color(0xFF7CE4FF),
-                    size: 23.sp,
-                  ),
-                ],
+                ),
               ),
-              SizedBox(height: 22.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '\$14.99',
-                    style: TextStyle(
-                      fontSize: 38.sp,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.5,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 7.w),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 4.h),
-                    child: Text(
-                      'USD',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white.withValues(alpha: 0.72),
-                      ),
-                    ),
-                  ),
-                ],
+              const Spacer(),
+              Icon(
+                Icons.verified_rounded,
+                color: const Color(0xFF7CE4FF),
+                size: 23.sp,
               ),
-              SizedBox(height: 9.h),
-              Row(
-                children: [
-                  Icon(
-                    Icons.done_rounded,
-                    size: 17.sp,
-                    color: const Color(0xFF7CE4FF),
+            ],
+          ),
+          SizedBox(height: 22.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '\$14.99',
+                style: TextStyle(
+                  fontSize: 38.sp,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1.5,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: 7.w),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Text(
+                  'USD',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withValues(alpha: 0.72),
                   ),
-                  SizedBox(width: 6.w),
-                  Expanded(
-                    child: Text(
-                      'One-time payment. No recurring subscription.',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        height: 1.4,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.82),
-                      ),
-                    ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 9.h),
+          Row(
+            children: [
+              Icon(
+                Icons.done_rounded,
+                size: 17.sp,
+                color: const Color(0xFF7CE4FF),
+              ),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  'One-time payment. No recurring subscription.',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    height: 1.4,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.82),
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -434,13 +610,6 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
         color: Colors.white.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: const Color(0xFFE7ECF4)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF101828).withValues(alpha: 0.06),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,19 +619,13 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w800,
-              letterSpacing: -0.3,
               color: const Color(0xFF101828),
             ),
           ),
           SizedBox(height: 5.h),
           Text(
             'Upgrade once and unlock every Pro feature.',
-            style: TextStyle(
-              fontSize: 12.sp,
-              height: 1.4,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF667085),
-            ),
+            style: TextStyle(fontSize: 12.sp, color: const Color(0xFF667085)),
           ),
           SizedBox(height: 17.h),
           for (int index = 0; index < _features.length; index++) ...[
@@ -470,11 +633,7 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
             if (index < _features.length - 1)
               Padding(
                 padding: EdgeInsets.only(left: 51.w),
-                child: Divider(
-                  height: 22.h,
-                  thickness: 1,
-                  color: const Color(0xFFEEF1F6),
-                ),
+                child: Divider(height: 22.h, color: const Color(0xFFEEF1F6)),
               ),
           ],
         ],
@@ -491,13 +650,6 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
         gradient: const LinearGradient(
           colors: [Color(0xFF176BDB), Color(0xFF3257D6), Color(0xFF694FD6)],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3257D6).withValues(alpha: 0.32),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
       ),
       child: ElevatedButton(
         onPressed: _isPurchasing ? null : _handleUpgrade,
@@ -509,39 +661,34 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
             borderRadius: BorderRadius.circular(17.r),
           ),
         ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          child: _isPurchasing
-              ? SizedBox(
-                  key: const ValueKey('loading'),
-                  width: 23.r,
-                  height: 23.r,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: Colors.white,
-                  ),
-                )
-              : Row(
-                  key: const ValueKey('buttonContent'),
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.workspace_premium_rounded,
-                      color: Colors.white,
-                      size: 21.sp,
-                    ),
-                    SizedBox(width: 9.w),
-                    Text(
-                      'Unlock Pro for \$14.99',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+        child: _isPurchasing
+            ? SizedBox(
+                width: 23.r,
+                height: 23.r,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
                 ),
-        ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.workspace_premium_rounded,
+                    color: Colors.white,
+                    size: 21.sp,
+                  ),
+                  SizedBox(width: 9.w),
+                  Text(
+                    'Unlock Pro for \$14.99',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -552,7 +699,6 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: const Color(0xFFD8E8FF)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,8 +711,7 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
           SizedBox(width: 9.w),
           Expanded(
             child: Text(
-              'Your purchase is securely processed through the App Store. '
-              'The final price may vary based on your App Store region.',
+              'Your purchase is securely processed through the App Store.',
               style: TextStyle(
                 fontSize: 10.5.sp,
                 height: 1.45,
@@ -583,15 +728,11 @@ class _UpgradeToProViewState extends State<UpgradeToProView> {
   Widget _buildLegalLinks() {
     return Wrap(
       alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         _LegalButton(label: 'Terms of Use', onPressed: widget.onTermsPressed),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 3.w),
-          child: Text(
-            '•',
-            style: TextStyle(fontSize: 10.sp, color: const Color(0xFF98A2B3)),
-          ),
+        Text(
+          ' • ',
+          style: TextStyle(fontSize: 10.sp, color: const Color(0xFF98A2B3)),
         ),
         _LegalButton(
           label: 'Privacy Policy',
@@ -627,53 +768,27 @@ class _FeatureTile extends StatelessWidget {
         ),
         SizedBox(width: 11.w),
         Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(top: 1.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        feature.title,
-                        style: TextStyle(
-                          fontSize: 13.5.sp,
-                          height: 1.3,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF101828),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      width: 21.r,
-                      height: 21.r,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFDCFCE7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.check_rounded,
-                        size: 14.sp,
-                        color: const Color(0xFF15803D),
-                      ),
-                    ),
-                  ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                feature.title,
+                style: TextStyle(
+                  fontSize: 13.5.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF101828),
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  feature.description,
-                  style: TextStyle(
-                    fontSize: 11.5.sp,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF667085),
-                  ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                feature.description,
+                style: TextStyle(
+                  fontSize: 11.5.sp,
+                  height: 1.45,
+                  color: const Color(0xFF667085),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -697,14 +812,6 @@ class _UpgradeBackground extends StatelessWidget {
             color: const Color(0xFF84D7FF).withValues(alpha: 0.28),
           ),
         ),
-        Positioned(
-          top: 150,
-          left: -130,
-          child: _BlurredCircle(
-            size: 260,
-            color: const Color(0xFF9D8CFF).withValues(alpha: 0.14),
-          ),
-        ),
       ],
     );
   }
@@ -720,23 +827,11 @@ class _BlurredCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 45, sigmaY: 45),
-      child: _DecorativeCircle(size: size, color: color),
-    );
-  }
-}
-
-class _DecorativeCircle extends StatelessWidget {
-  final double size;
-  final Color color;
-
-  const _DecorativeCircle({required this.size, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
     );
   }
 }
@@ -752,18 +847,15 @@ class _LegalButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: const Color(0xFF667085),
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
         minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 10.5.sp,
-          fontWeight: FontWeight.w600,
+          color: const Color(0xFF667085),
           decoration: TextDecoration.underline,
-          decorationColor: const Color(0xFF98A2B3),
         ),
       ),
     );

@@ -92,7 +92,7 @@ class DashboardHeader extends StatelessWidget {
             ],
           ),
         ),
-        _buildNotificationButton(),
+        if (isPro) _buildNotificationButton(),
         sWidthSpan,
         GestureDetector(
           onTap: onProfileTap,

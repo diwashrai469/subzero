@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -130,14 +131,21 @@ class AuthFirebaseService {
 
   Future<void> signOut() async {
     try {
+      await Purchases.logOut();
+      debugPrint('✅ RevenueCat logged out');
+    } catch (e) {
+      debugPrint('⚠️ RevenueCat logout failed: $e');
+    }
+
+    try {
       await GoogleSignIn().signOut();
     } catch (e) {
       debugPrint('⚠️ Google sign-out failed: $e');
     }
 
-    await Purchases.logOut();
-
     await _auth.signOut();
+
+    debugPrint('✅ Firebase signed out');
   }
 
   Future<void> _afterSuccessfulSignIn(User user) async {
@@ -168,6 +176,52 @@ class AuthFirebaseService {
 
     await user.updateDisplayName(fullName);
     await user.reload();
+  }
+
+  Future<bool> deleteAccount() async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        debugPrint('⚠️ Cannot delete account: no user is signed in.');
+        return false;
+      }
+
+      debugPrint('🗑️ Starting account deletion for: ${user.uid}');
+
+      final callable = FirebaseFunctions.instance.httpsCallable(
+        'deleteUserAccount',
+      );
+
+      await callable.call();
+
+      // Clean up RevenueCat session.
+      try {
+        await Purchases.logOut();
+      } catch (e) {
+        debugPrint('⚠️ RevenueCat logout failed: $e');
+      }
+
+      // Clean up Google session.
+      try {
+        await GoogleSignIn().signOut();
+      } catch (e) {
+        debugPrint('⚠️ Google sign-out failed: $e');
+      }
+
+      // Sign out locally.
+      await _auth.signOut();
+
+      debugPrint('✅ Account deleted successfully.');
+
+      return true;
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('❌ Account deletion failed: ${e.code} - ${e.message}');
+      return false;
+    } catch (e) {
+      debugPrint('❌ Account deletion failed: $e');
+      return false;
+    }
   }
 
   Future<void> _upsertUserDocument(User user) async {

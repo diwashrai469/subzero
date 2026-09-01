@@ -102,7 +102,7 @@ class FCMService {
   }
 
   static void _listenTokenRefresh() {
-    _messaging.onTokenRefresh.listen((token) async {
+    _messaging.onTokenRefresh.listen((newToken) async {
       final user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
@@ -110,9 +110,14 @@ class FCMService {
         return;
       }
 
-      await locator<SubscriptionFirebaseService>().saveFcmToken(token);
+      try {
+        // Save the new token to the currently logged-in account.
+        await locator<SubscriptionFirebaseService>().saveFcmToken(newToken);
 
-      debugPrint('🔄 FCM token refreshed and saved');
+        debugPrint('🔄 FCM token refreshed and saved for user: ${user.uid}');
+      } catch (error) {
+        debugPrint('❌ Failed to save refreshed FCM token: $error');
+      }
     });
   }
 

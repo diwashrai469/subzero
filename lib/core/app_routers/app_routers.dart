@@ -13,5 +13,6 @@ class AppRouters extends $AppRouters {
     AutoRoute(page: SubscriptionInfoView.page),
     AutoRoute(page: AuthGateView.page, initial: true),
     AutoRoute(page: NotificationView.page),
+    AutoRoute(page: DeleteAccountView.page),
   ];
 }
